@@ -51,7 +51,7 @@ using namespace std;
 using namespace cv;
 using namespace mvIMPACT::acquire;
 
-std::string dir = "/home/abeauvisage/Insa/PhD/datasets/16_10_27/test_16_10_27-b/"; // directory where to save images
+std::string dir = "/home/hugo/Documents/PhD/Code/image-acquisition/test/"; // directory where to save images
 std::ofstream image_data_file;
 //DeviceClass device;
 //XsPortInfo mtPort;
@@ -658,7 +658,7 @@ init_bluefox(FunctionInterface& fi_, ImageRequestControl& irc_, Device* pDev_, s
 
 	SettingsBlueFOX setting( pDev_, name );
 
-	setting.cameraSetting.aoiWidth.write(WEIGHT);
+	setting.cameraSetting.aoiWidth.write(WIDTH);
 	setting.cameraSetting.aoiHeight.write(HEIGHT);
 	setting.cameraSetting.aoiStartX.write(START);
 	setting.cameraSetting.aoiStartY.write(0);
