@@ -29,5 +29,8 @@ Typical usage :
 - cmake -DMVBLUEFOX_TOP_LEVEL_PATH="/home/user/Libraries/mvIMPACT_acquire-x86_64-2.17.3/" ..
 - make
 
+Code examples :
+- Look at the "examples" folder for examples on how to use the camera classes.
+
 TODO:
 - create makefile for the program to be compiled on linux :)
