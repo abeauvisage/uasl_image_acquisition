@@ -18,7 +18,7 @@ CamBlueFox::CamBlueFox():
     write_on_disk(false),
     image_prefix("image_"),
     show_on_screen(false)
-{    
+{
     init();
 }
 
@@ -42,7 +42,7 @@ CamBlueFox::~CamBlueFox()
 }
 
 int CamBlueFox::start_acq()
-//Start the acquisition 
+//Start the acquisition
 //Return -1 if failure, 0 otherwise
 {
     if(!isOpened)
@@ -106,7 +106,7 @@ void CamBlueFox::set_image_display(bool value, const std::string& window_name_)
     show_on_screen = value;
     if(value)
     {
-        if(!window_name_.empty()) 
+        if(!window_name_.empty())
         {
             cv::destroyWindow(window_name);//If the name change, destroy former window
             window_name = window_name_;
@@ -156,7 +156,7 @@ void CamBlueFox::set_agc(bool value)
     stop_acq();
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
     mvIMPACT::acquire::TAutoGainControl agc_val = value ? agcOn : agcOff;
-    
+
     if(cam_settings.autoGainControl.isValid()) cam_settings.autoGainControl.write(agc_val);
 }
 
@@ -170,7 +170,7 @@ void CamBlueFox::set_aec(bool value)
     stop_acq();
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
     mvIMPACT::acquire::TAutoExposureControl aec_val = value ? aecOn : aecOff;
-    
+
     if(cam_settings.autoExposeControl.isValid()) cam_settings.autoExposeControl.write(aec_val);
 }
 
@@ -183,7 +183,7 @@ void CamBlueFox::set_image_type(int ocv_color_code)
         std::cerr << "Error : Camera not opened." << std::endl;
         return;
     }
-    
+
     stop_acq();//If the thread is not stopped (i.e. if this line is removed), the following is non thread safe and WILL
     //make the program crash.
 
@@ -215,7 +215,7 @@ void CamBlueFox::set_image_type(int ocv_color_code)
     image_destination_settings.pixelFormat.write(pixel_format_destination);
 }
 
-unsigned int CamBlueFox::get_image_nb() const 
+unsigned int CamBlueFox::get_image_nb() const
 {
     std::lock_guard<std::mutex> mlock(mtx_image_current);
     return image_nb;
@@ -242,16 +242,18 @@ void CamBlueFox::init(int camId)
 
     try
     {
+        if(!p_dev)
+            throw mvIMPACT::acquire::ImpactAcquireException("cannot open the camera","serial number incorrect",0);
         p_dev->open();
         isOpened = true;
     }
     catch(mvIMPACT::acquire::ImpactAcquireException& e)
     {
-        std::cerr << "An error occured while opening the device (error code: " << e.getErrorString() << ")" << std::endl;
+        std::cerr << "An error occured while opening the device (" << e.getErrorString() << ", origin: " << e.getErrorOrigin() << ")" << std::endl;
     }
 
     if(!isOpened || !p_dev) return;
-    
+
     try
     {
         p_fi = std::unique_ptr<mvIMPACT::acquire::FunctionInterface>(new
@@ -264,7 +266,7 @@ void CamBlueFox::init(int camId)
         isOpened = false;
     }
 
-    if(isOpened) 
+    if(isOpened)
     {
         //Initialize the settings
         //Settings for the acquisition
@@ -292,7 +294,7 @@ void CamBlueFox::thread_func()
     mvIMPACT::acquire::Request * pPreviousRequest = nullptr;
     const unsigned timeoutMs = 500;
     unsigned real_img_count = 0;
-    
+
     while(started.load())
     {
         //Wait for the results from the default capture queue
@@ -370,11 +372,11 @@ void CamBlueFox::write_image_disk()
 
         std::stringstream nb;
         nb << std::setfill('0') << std::setw(5) << image_nb;
-        std::string img_name = path_to_folder + '/' + image_prefix + nb.str() + ".png"; 
+        std::string img_name = path_to_folder + '/' + image_prefix + nb.str() + ".png";
         mlock.unlock();
 
         std::lock_guard<std::mutex> mlock_img(mtx_image_current);
-        cv::imwrite(img_name, image_current); 
+        cv::imwrite(img_name, image_current);
     }
 }
 

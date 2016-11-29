@@ -1,5 +1,5 @@
 #ifndef IMAGE_ACQUISITION_MULTIPLE_CAMERA_SYNC_HPP
-#ifndef IMAGE_ACQUISITION_MULTIPLE_CAMERA_SYNC_HPP
+#define IMAGE_ACQUISITION_MULTIPLE_CAMERA_SYNC_HPP
 
 #include <thread>
 #include <condition_variable>
@@ -10,15 +10,15 @@ namespace cam
 class Barrier {
 public:
     explicit Barrier(std::size_t initial_count) :
-      threshold(initial_count), 
-      count(initial_count), 
+      threshold(initial_count),
+      count(initial_count),
       generation(0) {}
 
-    void wait() 
+    void wait()
     {
         size_t local_gen = generation;
         std::unique_lock<std::mutex> local_lock(mtx);
-        if (!--count) 
+        if (!--count)
         {
             generation++;
             count = threshold;
