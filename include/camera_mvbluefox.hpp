@@ -20,7 +20,6 @@
 #include <atomic>
 #include <iostream>
 
-
 namespace cam
 {
 //The type of the property is the type in the template parameter of the enum in the doc
@@ -32,7 +31,12 @@ static const mvIMPACT::acquire::TAutoGainControl agc_d(agcOff);//Default for the
 //agcOn
 static const mvIMPACT::acquire::TAutoExposureControl aec_d(aecOff);//Default for the aec. To activate, set to 
 //aecOn
+static const mvIMPACT::acquire::TCameraTriggerMode trigger_d(ctmContinuous);//Default setting for the trigger mode. See
+//https://www.matrix-vision.com/manuals/SDK_CPP/group__DeviceSpecificInterface.html#ga7d880247a3af52241ce96ba703c526a1
+//for the details.
 
+static constexpr int timeout_ms_get_image = 500;//Timeout value for getting images from the outside thread
+static constexpr int timemout_waitfor_ms = 500;//Timeout for a waitfor request for the camera
 
 class CamBlueFox : public Camera
 {
@@ -41,27 +45,41 @@ class CamBlueFox : public Camera
     CamBlueFox(int camId);//Open a camera by serial number
     ~CamBlueFox();
 
-    int start_acq();
+    int start_acq(Barrier* init_bar, Barrier* acquiring_bar, MatSync * mat_sync, unsigned int cam_idx);
+    int start_acq()
+	{
+		return start_acq(nullptr, nullptr, nullptr, 0);
+	}	
     int stop_acq();
-    int take_picture(cv::Mat& image, int * image_nb_ = nullptr, std::chrono::time_point<clock_type> * time_pt = nullptr);
+    int take_picture(cv::Mat& image, int * image_nb_, std::chrono::time_point<clock_type> * time_pt);
     int take_picture(cv::Mat& image)
     {
-        take_picture(image, nullptr, nullptr);
+        return take_picture(image, nullptr, nullptr);
     }
-
-    void set_write_on_disk(bool value, const std::string& path_to_folder_ = std::string(), const std::string&
-    image_prefix_ = std::string());//Activate/Deactivate the writing of the files on the disk, the directory is designated by the path to folder, the image prefix is the name of the image before the number
+		
+    void set_write_on_disk(bool value, const std::string& path_to_folder_, const std::string& image_prefix_);//Activate/Deactivate the writing of the files on the disk, the directory is designated by the path to folder, the image prefix is the name of the image before the number
+    void set_write_on_disk(bool value)
+    {
+    		set_write_on_disk(value, std::string(), std::string());
+    }
     
-    void set_image_display(bool value, const std::string& window_name_ = std::string());//Activate/Deactivate the display of the image
+    void set_image_display(bool value, const std::string& window_name_);//Activate/Deactivate the display of the image
+    void set_image_display(bool value)
+    {
+    		set_image_display(value, std::string());
+    }
     void set_img_keep_rate(unsigned int value);
 
+		unsigned int get_image_nb() const;//Get the internal counter
+		int get_image_format() const;//Get the image format
+		
     //Please note that the following set functions stop the acquisition
     void set_image_size(int width, int height);
     void set_agc(bool value);
     void set_aec(bool value);
     void set_image_type(int ocv_color_code);
 
-    unsigned int get_image_nb() const;//Get the internal counter 
+
     private:
     //Device manager, maybe one in common for all mv cameras
     mvIMPACT::acquire::DeviceManager dev_mgr;
@@ -89,13 +107,16 @@ class CamBlueFox : public Camera
     std::mutex mtx_writing_var;//Protect the writing variables path_to_folder and image_prefix
     std::atomic<bool> show_on_screen;
     std::string window_name;
-    std::mutex mtx_image_display;//Protect the window_name variable
+	bool window_name_changed;//If the window name has changed
+    std::mutex mtx_image_display;//Protect the window_name and window_name_changed variables
     
     void init(int camId = -1);//Initialisation function for the camera
-    void thread_func();//Thread function to acquire images
+    void thread_func(Barrier* init_bar, Barrier* acquiring_bar, MatSync * mat_sync, unsigned int cam_idx);//Thread function to acquire images
 
     void write_image_disk();//Write the current image on the disk
     void show_image();//Show the current image on the screen
+
+    void empty_request_queue();//Empty the request queue of the camera
 
     inline void import_image(int width, int height, void * vpData)
     {

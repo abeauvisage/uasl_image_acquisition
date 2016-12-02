@@ -10,8 +10,7 @@
 //signals in main, so that each spawned thread ignore them also, and to periodically check them with a sigwait or
 //signalfd
 //See http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html#tag_15_04 
-//Here is an helper function to block all signals in the current thread (note that the mask is propagated to all
-//children threads)
+//Note that initialising this class will block all signals in this thread and the future spawned threads
 
 namespace cam
 {
