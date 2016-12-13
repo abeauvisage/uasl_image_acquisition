@@ -71,7 +71,25 @@ int CamBlueFox::start_acq(Barrier* init_bar, Barrier* acquiring_bar, MatSync * m
    	//It seems that for 1 camera, the continuous mode provides higher framerate. In the case of multiple cameras, on demand acquisition is needed for synchronization purpose
 		if(mat_sync != nullptr)
 		{
-			cam_settings.triggerMode.write(ctmOnDemand);
+			//Check if the OnDemand is supported by the camera
+			std::vector<mvIMPACT::acquire::TCameraTriggerMode> modes_available;
+			cam_settings.triggerMode.getTranslationDictValues(modes_available);
+			bool mode_available = false;
+			for(std::vector<mvIMPACT::acquire::TCameraTriggerMode>::iterator it = modes_available.begin(); it != modes_available.end(); ++it)
+			{
+					if(*it == ctmOnDemand)//OnDemand is available
+					{
+						mode_available = true;
+						break;
+					}
+			}
+			
+			if(mode_available) cam_settings.triggerMode.write(ctmOnDemand);
+			else
+			{
+					cam_settings.triggerMode.write(ctmContinuous);
+					std::cout << "Warning : camera (Serial " << p_dev->serial.read() << ") does not support on demand trigger. Defaulting on continuous. Synchronization might be compromised." << std::endl; 
+			}
 		}
 		else
 		{
