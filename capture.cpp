@@ -1,7 +1,7 @@
 #define DISPLAY 0 // saving or displaying images
 
 /*** camera selection (0: left, 1: right)***/
-#define VISIBLE_0 26802713  //26802713  32902193
+#define VISIBLE_0 25000812  //26802713  32902193
 #define VISIBLE_1 0         //          32902184
 #define INFRARED_0 0
 #define INFRARED_1 1
@@ -28,6 +28,7 @@
 #include <fstream>
 
 #include <time.h>
+#include <chrono>
 #include <signal.h>
 
 #include "opencv2/opencv.hpp"
@@ -51,7 +52,7 @@ using namespace std;
 using namespace cv;
 using namespace mvIMPACT::acquire;
 
-std::string dir = "/home/hugo/Documents/PhD/Code/image-acquisition/test/"; // directory where to save images
+std::string dir = "/home/abeauvisage/Insa/PhD/datasets/17_02_20/test/"; // directory where to save images
 std::ofstream image_data_file;
 //DeviceClass device;
 //XsPortInfo mtPort;
@@ -142,14 +143,16 @@ process_images (const void *p, int len, unsigned int seq, const void *p2, int le
     #endif // VISIBLE_1
 
     // retrieving time
-	struct timeval act_time;
-	long ms_time, seconds, useconds;
-	gettimeofday(&act_time, NULL);
-	seconds = act_time.tv_sec;
-	useconds = act_time.tv_usec;
-
-	ms_time = ((seconds)*1000+useconds/1000.0+0.5);
-	cout << "time: " << ms_time << endl;
+//	struct timeval act_time;
+//	long ms_time, seconds, useconds;
+//	gettimeofday(&act_time, NULL);
+//	seconds = act_time.tv_sec;
+//	useconds = act_time.tv_usec;
+//
+//	ms_time = ((seconds)*1000+useconds/1000.0+0.5);
+    auto current_time_point = std::chrono::steady_clock::now();
+    double stamp = current_time_point.time_since_epoch().count();
+	cout << "time: " << stamp << endl;
 
     stringstream num; num << std::setfill('0') << std::setw(5) << img_nb; // saving image number
     #if DISPLAY
@@ -179,7 +182,7 @@ process_images (const void *p, int len, unsigned int seq, const void *p2, int le
     #if INFRARED_1
     imwrite(dir+"cam1_image"+num.str()+".png",img_1);
     #endif // INFRARED_1
-	image_data_file << num.str() << "," << ms_time << ";" << std::endl;
+	image_data_file << num.str() << "," << setprecision(12) << stamp << ";" << std::endl;
 	#endif // DISPLAY
 	img_nb++;
 }
@@ -307,20 +310,6 @@ mainloop(FunctionInterface& fi, FunctionInterface& fi2)
 
 	while (1) {
 		for (;;) {
-            #if VISIBLE_0
-			request_0 = INVALID_ID;
-			if(!pRequest_0)			{
-				request_0 = fi.imageRequestWaitFor(timeout_ms);
-				pRequest_0 = fi.isRequestNrValid( request_0 ) ? fi.getRequest( request_0 ) : 0;
-			}
-			#endif // VISIBLE_0
-			#if VISIBLE_1
-            request_1 = INVALID_ID;
-			if(!pRequest_1)			{
-				request_1 = fi2.imageRequestWaitFor(timeout_ms);
-				pRequest_1 = fi2.isRequestNrValid( request_1 ) ? fi2.getRequest( request_1 ) : 0;
-			}
-			#endif // VISIBLE_1
 
             struct timeval tv;
             int r_0,r_1;
@@ -377,6 +366,22 @@ mainloop(FunctionInterface& fi, FunctionInterface& fi2)
 				exit (EXIT_FAILURE);
 			}
 			#endif // INFRARED_0
+
+			#if VISIBLE_0
+			request_0 = INVALID_ID;
+			if(!pRequest_0)			{
+				request_0 = fi.imageRequestWaitFor(timeout_ms);
+				pRequest_0 = fi.isRequestNrValid( request_0 ) ? fi.getRequest( request_0 ) : 0;
+			}
+			#endif // VISIBLE_0
+			#if VISIBLE_1
+            request_1 = INVALID_ID;
+			if(!pRequest_1)			{
+				request_1 = fi2.imageRequestWaitFor(timeout_ms);
+				pRequest_1 = fi2.isRequestNrValid( request_1 ) ? fi2.getRequest( request_1 ) : 0;
+			}
+			#endif // VISIBLE_1
+
 			bool vis_ok = false;
             #if VISIBLE_0
             if (pRequest_0 && pRequest_0->isOK())
@@ -481,7 +486,7 @@ init_mmap (int fd, char* dev_name, buffer** buffers, unsigned int& n_buffers)
 
 	CLEAR (req);
 
-	req.count               = 4;
+	req.count               = 1;
 	req.type                = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory              = V4L2_MEMORY_MMAP;
 
@@ -496,7 +501,7 @@ init_mmap (int fd, char* dev_name, buffer** buffers, unsigned int& n_buffers)
 		}
 	}
 
-	if (req.count < 2) {
+	if (req.count < 1) {
 		fprintf (stderr, "Insufficient buffer memory on %s\n",
 			dev_name);
 		exit (EXIT_FAILURE);
@@ -669,15 +674,17 @@ init_bluefox(FunctionInterface& fi_, ImageRequestControl& irc_, Device* pDev_, s
 //	#if VISIBLE_0 && INFRARED_1
 //	TBoolean b(bTrue);
 //	cs.getHDRControl().HDREnable.write(b);
-//	setting.cameraSetting.getHDRControl().HDREnable.write(b);
-//	setting.cameraSetting.getHDRControl().HDRMode.write(cHDRmFixed0);
-//	setting.cameraSetting.autoExposeControl.write(aecOff);
-//	setting.cameraSetting.autoGainControl.write(agcOff);
+	setting.cameraSetting.getHDRControl().HDREnable.write(bTrue);
+	setting.cameraSetting.getHDRControl().HDRMode.write(cHDRmFixed0);
+	setting.cameraSetting.expose_us.write(6000);
+	setting.cameraSetting.gain_dB.write(0);
+	setting.cameraSetting.autoExposeControl.write(aecOff);
+	setting.cameraSetting.autoGainControl.write(agcOff);
 ////    #else
-    setting.cameraSetting.autoExposeControl.write(aecOn);
-	setting.cameraSetting.autoGainControl.write(agcOn);
-	cs.autoExposeControl.write(aecOn);
-	cs.autoGainControl.write(agcOn);
+//    setting.cameraSetting.autoExposeControl.write(aecOn);
+//	setting.cameraSetting.autoGainControl.write(agcOn);
+//	cs.autoExposeControl.write(aecOn);
+//	cs.autoGainControl.write(agcOn);
 //	#endif // VISIBLE_0
 
     irc_.setting.writeS(name);
