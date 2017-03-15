@@ -16,8 +16,6 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="/opt/mvIMPACT_acquire/" />
-					<Add directory="include" />
-					<Add directory="/opt/mvIMPACT_acquire/mvIMPACT_CPP" />
 				</Compiler>
 				<Linker>
 					<Add library="mvBlueFOX" />
@@ -27,7 +25,6 @@
 					<Add library="opencv_highgui" />
 					<Add library="opencv_videoio" />
 					<Add library="opencv_imgcodecs" />
-					<Add library="pthread" />
 					<Add directory="/opt/mvIMPACT_acquire/lib/x86_64" />
 					<Add directory="/usr/local/lib" />
 				</Linker>
@@ -44,104 +41,12 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
-			<Target title="capture">
-				<Option output="image_acquisition" prefix_auto="1" extension_auto="1" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add directory="/opt/mvIMPACT_acquire/" />
-					<Add directory="include" />
-					<Add directory="/opt/mvIMPACT_acquire/mvIMPACT_CPP" />
-				</Compiler>
-				<Linker>
-					<Add library="mvBlueFOX" />
-					<Add library="mvDeviceManager" />
-					<Add library="mvPropHandling" />
-					<Add library="opencv_core" />
-					<Add library="opencv_highgui" />
-					<Add library="opencv_videoio" />
-					<Add library="opencv_imgcodecs" />
-					<Add library="pthread" />
-					<Add directory="/opt/mvIMPACT_acquire/lib/x86_64" />
-					<Add directory="/usr/local/lib" />
-				</Linker>
-			</Target>
-			<Target title="test">
-				<Option output="bin/Debug/image_acquisition" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Option projectIncludeDirsRelation="1" />
-				<Compiler>
-					<Add option="-g" />
-					<Add directory="/opt/mvIMPACT_acquire/" />
-					<Add directory="include" />
-					<Add directory="/opt/mvIMPACT_acquire/mvIMPACT_CPP" />
-				</Compiler>
-				<Linker>
-					<Add library="mvBlueFOX" />
-					<Add library="mvDeviceManager" />
-					<Add library="mvPropHandling" />
-					<Add library="opencv_core" />
-					<Add library="opencv_highgui" />
-					<Add library="opencv_videoio" />
-					<Add library="opencv_imgcodecs" />
-					<Add library="pthread" />
-					<Add directory="/opt/mvIMPACT_acquire/lib/x86_64" />
-					<Add directory="/usr/local/lib" />
-				</Linker>
-			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="capture.cpp">
-			<Option target="capture" />
-		</Unit>
-		<Unit filename="examples/example_single_bluefox.cpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="include/camera.hpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="include/camera_mvbluefox.hpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="include/multiple_camera_sync.hpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="include/util_clock.hpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="include/util_signal.hpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="src/camera_mvbluefox.cpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="src/multiple_cameras_sync.cpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="test" />
-		</Unit>
-		<Unit filename="test/test_bluefox_single.cpp">
-			<Option target="test" />
-		</Unit>
+		<Unit filename="capture.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

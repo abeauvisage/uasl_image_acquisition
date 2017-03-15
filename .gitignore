@@ -31,3 +31,5 @@
 #build and bin directories
 build/*
 bin/
+#Temp
+*~
