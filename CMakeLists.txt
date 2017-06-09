@@ -34,6 +34,14 @@ set(SRC_MULTIPLE_CAM_SYNC
 		src/multiple_cameras_sync.cpp
 )
 
+set(SRC_ACQ_SEQ
+		src/acquisition.cpp
+)
+
+set(SRC_BLUEFOX_ACQ_SEQ
+		src/camera_mvbluefox_seq.cpp
+)
+
 #mvBLueFOX libraries (64 bits)
 set(MVBLUEFOX_TOP_LEVEL_PATH CACHE PATH "Path to the whole mvImpact_acquire folder.")
 set(MVBLUEFOX_LIB_PATH ${MVBLUEFOX_TOP_LEVEL_PATH}/lib/x86_64 CACHE PATH "Path the the lib folder of the mvBlueFOX driver.")
@@ -64,12 +72,21 @@ target_link_libraries(multiple_cam_sync ${OpenCV_LIBRARIES})
 add_library(bluefox_acq ${SRC_BLUEFOX_ACQ})
 target_link_libraries(bluefox_acq multiple_cam_sync ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
+add_library(acq_seq ${SRC_ACQ_SEQ})
+target_link_libraries(acq_seq ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+add_library(bluefox_acq_seq ${SRC_BLUEFOX_ACQ_SEQ})
+target_link_libraries(bluefox_acq_seq ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 #Testing script
 add_executable(test_bluefox_single test/test_bluefox_single.cpp)
 target_link_libraries(test_bluefox_single bluefox_acq)
 
 add_executable(test_bluefox_framerate test/test_bluefox_framerate.cpp)
 target_link_libraries(test_bluefox_framerate bluefox_acq)
+
+add_executable(test_bluefox_seq test/test_bluefox_seq.cpp)
+target_link_libraries(test_bluefox_seq acq_seq bluefox_acq_seq)
 
 #Example code
 add_executable(example_single_bluefox examples/example_single_bluefox.cpp)

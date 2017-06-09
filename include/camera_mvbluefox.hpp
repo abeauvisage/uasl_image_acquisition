@@ -60,18 +60,18 @@ class CamBlueFox : public Camera
     void set_write_on_disk(bool value, const std::string& path_to_folder_, const std::string& image_prefix_);//Activate/Deactivate the writing of the files on the disk, the directory is designated by the path to folder, the image prefix is the name of the image before the number
     void set_write_on_disk(bool value)
     {
-    		set_write_on_disk(value, std::string(), std::string());
+		set_write_on_disk(value, std::string(), std::string());
     }
     
     void set_image_display(bool value, const std::string& window_name_);//Activate/Deactivate the display of the image
     void set_image_display(bool value)
     {
-    		set_image_display(value, std::string());
+		set_image_display(value, std::string());
     }
     void set_img_keep_rate(unsigned int value);
 
-		unsigned int get_image_nb() const;//Get the internal counter
-		int get_image_format() const;//Get the image format
+	unsigned int get_image_nb() const;//Get the internal counter
+	int get_image_format() const;//Get the image format
 		
     //Please note that the following set functions stop the acquisition
     void set_image_size(int width, int height);

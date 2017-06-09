@@ -11,7 +11,7 @@
 
 int main(int argc, char * argv[])
 {
-		cam::SigHandler sig_handle;//Instantiate this class first since the constructor blocks the signal of all future child threads
+	cam::SigHandler sig_handle;//Instantiate this class first since the constructor blocks the signal of all future child threads
     cam::CamBlueFox cam1;
     int signal_received;
     

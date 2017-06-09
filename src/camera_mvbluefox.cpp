@@ -354,7 +354,7 @@ void CamBlueFox::thread_func(Barrier* init_bar, Barrier* acquiring_bar, MatSync 
     unsigned real_img_count = 0;
 
     //Empty the request queue to start on the most recent images
-    //We onlydo this when there is multiple cameras because it can slow the acquisiton
+    //We only do this when there is multiple cameras because it can slow the acquisiton
     if(mat_sync != nullptr) empty_request_queue();
     
     if(init_bar != nullptr) init_bar->wait();//Init wait, so that all threads start at the same time
