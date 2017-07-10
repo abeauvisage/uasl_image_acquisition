@@ -1,12 +1,15 @@
 #include "acquisition.hpp"
 
 //Camera specific headers
+#if BLUEFOX_FOUND
 #include "camera_mvbluefox_seq.hpp"
+#endif
 
 #include <stdexcept>
 #include <typeinfo>
 
 namespace cam {
+
 
 //Public functions :
 
@@ -70,6 +73,7 @@ int Acquisition::add_camera(CameraType type, int id)
 	int ret_value = 0;
 	switch(type)
 	{
+		#if BLUEFOX_FOUND
 		case bluefox:
 			try
 			{
@@ -82,7 +86,8 @@ int Acquisition::add_camera(CameraType type, int id)
 				std::cerr << "Exception during a camera addition : " << e.what() << std::endl;
 				ret_value = -1;
 			}
-			break;			
+			break;
+		#endif			
 		default:
 			std::cerr << "Error : camera type non recognized." << std::endl;
 			ret_value = -2;

@@ -25,8 +25,8 @@ int main(int argc, char * argv[])
     acq.add_camera(cam::bluefox, 30400337);
     int signal_received;
     
-    dynamic_cast<BlueFoxParameters&>(acq.get_params(0)).set_aec(false);
-    dynamic_cast<BlueFoxParameters&>(acq.get_params(1)).set_aec(false);
+    dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(false);
+    dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_aec(false);
     
     std::chrono::time_point<std::chrono::steady_clock> start, end;
    

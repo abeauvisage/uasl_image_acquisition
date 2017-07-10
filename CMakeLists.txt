@@ -63,17 +63,20 @@ include_directories(
   ${MVBLUEFOX_INCLUDE_PATH}
 )
 
-add_executable(image-acquisition ${SRC_ACQUISITION})
-target_link_libraries(image-acquisition ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES})
-
 add_library(multiple_cam_sync ${SRC_MULTIPLE_CAM_SYNC})
 target_link_libraries(multiple_cam_sync ${OpenCV_LIBRARIES})
 
-add_library(bluefox_acq ${SRC_BLUEFOX_ACQ})
-target_link_libraries(bluefox_acq multiple_cam_sync ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
 add_library(acq_seq ${SRC_ACQ_SEQ})
 target_link_libraries(acq_seq ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+if(MVDEVICEMANAGER_LIBRARY AND MVLIBUSB1_LIBRARY)
+target_compile_definitions(acq_seq PRIVATE BLUEFOX_FOUND)
+
+add_executable(image-acquisition ${SRC_ACQUISITION})
+target_link_libraries(image-acquisition ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES})
+
+add_library(bluefox_acq ${SRC_BLUEFOX_ACQ})
+target_link_libraries(bluefox_acq multiple_cam_sync ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_library(bluefox_acq_seq ${SRC_BLUEFOX_ACQ_SEQ})
 target_link_libraries(bluefox_acq_seq ${MVDEVICEMANAGER_LIBRARY} ${MVLIBUSB1_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
@@ -94,6 +97,11 @@ target_link_libraries(example_single_bluefox bluefox_acq)
 
 add_executable(example_multiple_bluefox examples/example_multiple_bluefox.cpp)
 target_link_libraries(example_multiple_bluefox bluefox_acq)
+else(MVDEVICEMANAGER_LIBRARY AND MVLIBUSB1_LIBRARY)
+message(WARNING "mvBlueFox driver not found, libraries related to this module will be ignored.")
+endif(MVDEVICEMANAGER_LIBRARY AND MVLIBUSB1_LIBRARY)
+
+
 
 if(BUILD_ROS_NODE)
 	add_executable(single_camera_node src/nodes/single_camera_node.cpp)
