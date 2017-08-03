@@ -18,6 +18,8 @@
 int main(int argc, char * argv[])
 {
 	cam::SigHandler sig_handle;//Instantiate this class first since the constructor blocks the signal of all future child threads
+	
+	cam::Acquisition acq;
     
     //Class for managing cameras
     acq.add_camera(cam::bluefox, 30400337);
@@ -28,8 +30,8 @@ int main(int argc, char * argv[])
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_size(640,480);
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_image_size(640,480);
     
-    dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(true);
-    dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_aec(true);
+    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(true);
+    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_aec(true);
     
     //Loop variables
     bool looping = true;
