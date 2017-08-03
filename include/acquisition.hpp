@@ -4,6 +4,8 @@
 #include "camera_sequential.hpp"
 #include "cond_var_package.hpp"
 
+#include "trigger.hpp"
+
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -25,7 +27,7 @@ namespace cam {
 
 enum CameraType {bluefox};
 
-static constexpr int timeout_ms = 500;//Timeout value in milliseconds for acquiring the set of images
+static constexpr int timeout_ms = 1000;//Timeout value in milliseconds for retrieving the set of images
 static constexpr int timeout_delay_ms = 5000;//Timeout value in milliseconds for getting the acquisition lock
 
 static constexpr int default_cam_id = -1;//Default id number to pass to cameras (if the id is equal to this number, no id is sent)
@@ -62,6 +64,9 @@ class Acquisition
 	
 	std::condition_variable images_have_changed;//Notification when a new set of images is registered
     bool images_have_been_returned;//If the current set of images have been used
+    std::mutex images_ready_mtx;//Mutex to protect images_have_been_returned
+    
+    Trigger_vcp trigger;//External trigger
 	
 	void thread_func();//Acquisition function launched by the acquisition thread
 	void close_cameras();//Close each camera

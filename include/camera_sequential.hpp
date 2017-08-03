@@ -29,13 +29,10 @@ class Camera_seq
 {
 	public:
     virtual ~Camera_seq() {}
-    virtual int send_image_request() = 0;
-    virtual int retrieve_image_request(cv::Mat& img) = 0;
+    virtual int retrieve_image(cv::Mat& img) = 0;
 	virtual int start_acq(bool only_one_camera) = 0;
     virtual int stop_acq() = 0;    
-    virtual Camera_params& get_params() = 0;
-    
-    
+    virtual Camera_params& get_params() = 0;    
 }; //class Camera_seq
 
 } //namespace cam

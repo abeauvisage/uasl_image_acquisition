@@ -25,8 +25,7 @@ Acquisition::~Acquisition()
 }
 
 int Acquisition::start_acq()
-{
-	//Start the acquisition for all cameras. Returns 0 if success, else an error code.
+{	
 	if(acq_thd.joinable())
 	{
 		std::cerr << "Acquisition thread is already running." << std::endl;
@@ -115,12 +114,11 @@ Camera_params& Acquisition::get_cam_params(size_t idx)
 
 int Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 {
-	std::unique_lock<std::mutex> mlock(images_vec_mtx);//Lock the images vector
-	
+	std::unique_lock<std::mutex> mlock(images_ready_mtx);//Lock the images vector
 	bool success = !images_have_been_returned? true : images_have_changed.wait_for(mlock, std::chrono::milliseconds(timeout_ms), [this]{return !images_have_been_returned;});
-	
 	if(!success) return -1;
 	
+	std::lock_guard<std::mutex> lock_images(images_vec_mtx);
 	img_vec_out.resize(images_vec.size());
 	for(size_t i = 0; i < images_vec.size(); ++i)
 	{
@@ -134,6 +132,7 @@ int Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 //Private functions:
 void Acquisition::thread_func()
 {	
+	
 	{//Mutex scope
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex
 		const size_t cam_number = camera_vec.size();
@@ -144,9 +143,21 @@ void Acquisition::thread_func()
 			stop_acq();
 		}
 	
-		const bool only_one_camera = (cam_number == 1);
-	
-		for(size_t i = 0;i<cam_number; ++i)
+		const bool only_one_camera = (cam_number == 1);//If there is a unique camera
+		
+		//Open the trigger if more than 1 camera is started
+		if(!only_one_camera) 
+		{
+			trigger.open_vcp();
+			if(!trigger.is_opened())
+			{
+				std::cerr << "Trigger could not be opened. Aborting acquisition." << std::endl;
+				stop_acq();
+			}
+		}
+		
+		//Start the acquisition for all cameras. Returns 0 if success, else an error code.
+		for(size_t i = 0;i<cam_number && should_run.load(); ++i)
 		{
 			if(camera_vec[i]->start_acq(only_one_camera) != 0)
 			{
@@ -158,30 +169,37 @@ void Acquisition::thread_func()
 	
 	while(should_run.load())
 	{
+		//Send the trigger
+		if(trigger.is_opened() && !trigger.send_trigger()) 
+		{
+			std::cerr << "Error during triggering." << std::endl;
+			continue;
+		}
+		
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex for all the duration of the processing
 		
 		const size_t cam_number = camera_vec.size();
 		
 		bool acquisition_ok = true; //If the acquisition is valid
 		
-		//Please note that even if there is an error, we still try to retrieve the images to preserve synchronization (e.g. for the bluefox,
-		//a request is always treated).
-		//First, send the acquisition request
-		for(size_t i = 0;i<cam_number; ++i)
-		{
-			if(camera_vec[i]->send_image_request() != 0) acquisition_ok = false;
-		}
-		
 		//Second, get the acquired pictures
 		{//Mutex scope
 			std::lock_guard<std::mutex> lock_img(images_vec_mtx);//Lock the vector of images
 			for(size_t i = 0;i<cam_number; ++i)
 			{
-				if(camera_vec[i]->retrieve_image_request(images_vec[i]) != 0) acquisition_ok = false;//By design, the size of camera_vec and image_vec should be the same
+				if(camera_vec[i]->retrieve_image(images_vec[i]) != 0) 
+				{
+					acquisition_ok = false;//By design, the size of camera_vec and image_vec should be the same
+				}
 			}
-			
-			if(acquisition_ok) images_have_been_returned = false;
 		}
+		
+		if(acquisition_ok) 
+		{
+			std::lock_guard<std::mutex> lock_ready(images_ready_mtx);
+			images_have_been_returned = false;
+		}
+		
 		
 		if(acquisition_ok)
 		{

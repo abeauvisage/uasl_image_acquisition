@@ -3,7 +3,7 @@ PROJECT(image_acquisition)
 
 add_definitions(-std=c++11)
 
-find_package(OpenCV 2 REQUIRED)#Depend on your version of OpenCV and ROS installed. If your cv_bridge package relies on OpenCV 2, find_package(OpenCV 2 REQUIRED) is what you need. Else, find_package(OpenCV REQUIRED) will automatically look for OpenCV3.
+find_package(OpenCV REQUIRED)#Depend on your version of OpenCV and ROS installed. If your cv_bridge package relies on OpenCV 2, find_package(OpenCV 2 REQUIRED) is what you need. Else, find_package(OpenCV REQUIRED) will automatically look for OpenCV3.
 find_package(Threads REQUIRED)
 
 option(BUILD_ROS_NODE "Build ROS node" ON)
@@ -17,7 +17,7 @@ if(BUILD_ROS_NODE)
 		  DEPENDS OpenCV
 		  CATKIN_DEPENDS roscpp image_transport cv_bridge
 		  INCLUDE_DIRS include
-		  LIBRARIES bluefox_acq #External libraries created by this package
+		  LIBRARIES bluefox_acq trigger multiple_cam_sync acq_seq bluefox_acq bluefox_acq_seq#External libraries created by this package
 	)
 	include_directories(${catkin_INCLUDE_DIRS})
 endif(BUILD_ROS_NODE)
@@ -63,11 +63,14 @@ include_directories(
   ${MVBLUEFOX_INCLUDE_PATH}
 )
 
+#Trigger code
+add_library(trigger src/trigger.cpp)
+
 add_library(multiple_cam_sync ${SRC_MULTIPLE_CAM_SYNC})
 target_link_libraries(multiple_cam_sync ${OpenCV_LIBRARIES})
 
 add_library(acq_seq ${SRC_ACQ_SEQ})
-target_link_libraries(acq_seq ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(acq_seq trigger ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if(MVDEVICEMANAGER_LIBRARY AND MVLIBUSB1_LIBRARY)
 target_compile_definitions(acq_seq PRIVATE BLUEFOX_FOUND)

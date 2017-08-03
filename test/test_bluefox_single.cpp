@@ -10,7 +10,7 @@
 
 int main(int argc, char * argv[])
 {
-		cam::SigHandler sig_handle;//Instantiate this class first since the constructor blocks the signal of all future child threads
+	cam::SigHandler sig_handle;//Instantiate this class first since the constructor blocks the signal of all future child threads
     cam::CamBlueFox cam1(26802713);
     int signal_received;
     const int max_iter = 100;
