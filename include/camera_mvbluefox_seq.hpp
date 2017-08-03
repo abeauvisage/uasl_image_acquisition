@@ -25,9 +25,7 @@
 
 namespace cam
 {
-//The type of the property is the type in the template parameter of the enum in the doc
-static const mvIMPACT::acquire::TImageDestinationPixelFormat pixel_format_output_d(idpfMono8);
-static constexpr int pixel_fromat_d(CV_8U);//Default pixel format //(has to be coherent with pixel_fromat_output_d)
+static constexpr int pixel_format_d(CV_8U);//Default pixel format //(has to be coherent with pixel_fromat_output_d)
 //static constexpr int width_d(640);//Default width (if max width is not available)
 //static constexpr int height_d(480);//Default height (if max height is not available)
 static constexpr int exposure_us_d(10000);//Default exposure time in microseconds
@@ -48,7 +46,7 @@ class BlueFoxParameters : public Camera_params
 	public:
 	BlueFoxParameters(Cond_var_package& package_) : Camera_params(package_),
 													p_dev(nullptr),
-													pixel_format(pixel_fromat_d)
+													pixel_format(pixel_format_d)
 													{}
 	void set_p_dev(mvIMPACT::acquire::Device * p_dev_)
 	{

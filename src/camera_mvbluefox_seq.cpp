@@ -374,7 +374,7 @@ void CamBlueFoxSeq::init(int camId)
     params.set_pixelclock(pixelclock_d);//Pixel clock
     params.set_request_timeout_ms(image_request_timeout_ms_d);//image request timeout
     //Settings for the output      
-    params.set_image_type(pixel_format_output_d);
+    params.set_image_type(pixel_format_d);
     
     std::cout << "Camera (Serial " << p_dev->serial.read() << ") has been opened successfully." << std::endl;
     if(!clock_type::is_steady)

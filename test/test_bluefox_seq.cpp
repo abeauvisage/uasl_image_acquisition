@@ -57,7 +57,7 @@ int main(int argc, char * argv[])
 			++count;
 			for(int n = 0; n<img_vec.size(); ++n)
 			{
-				std::string image_name_show = "Image1_" + std::to_string(n+1);
+				std::string image_name_show = "Image_" + std::to_string(n+1);
 				cv::imshow(image_name_show.c_str(), img_vec[n]);
 				
 				/*std::string image_name = "test_pic/" + std::to_string(n+1) + "_" + std::to_string(count) + ".png";
