@@ -1,16 +1,17 @@
-#define DISPLAY 0 // saving or displaying images
+#define DISPLAY 1 // saving or displaying images
 
 /*** camera selection (0: left, 1: right)***/
-#define VISIBLE_0 25000812  //26802713  32902193
+#define VISIBLE_0  25000812//26803026 //25000812 // 26803026  //26802713  32902193
 #define VISIBLE_1 0         //          32902184
 #define INFRARED_0 0
 #define INFRARED_1 1
 
 /*** cropping for infrared ***/
-#define WIDTH 640 //640   1280
-#define HEIGHT 480 //480   1024
-#define START 56 //56   0
+#define WIDTH 640//   1280
+#define HEIGHT 480//   1024
+#define START 0
 
+#include "configWindow.h"
 
 #include <fcntl.h>              /* low-level i/o */
 #include <unistd.h>
@@ -26,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#include <deque>
 
 #include <time.h>
 #include <chrono>
@@ -52,7 +54,27 @@ using namespace std;
 using namespace cv;
 using namespace mvIMPACT::acquire;
 
-std::string dir = "/home/abeauvisage/Insa/PhD/datasets/17_02_20/test/"; // directory where to save images
+float computeEntropy(const Mat& img){
+
+    float range[] = { 0, 256 } ;
+    const float* histRange = { range };
+    int histSize[] = {256};
+
+    Mat hist;
+    calcHist( &img, 1, 0, Mat(), hist, 1, histSize, &histRange);
+
+    hist /= img.rows*img.cols;
+
+    float entropy=0;
+    for(int i=0;i<hist.rows;i++)
+        if(hist.at<float>(i) > 0)
+            entropy += hist.at<float>(i)*log2(hist.at<float>(i));
+
+    return entropy;
+}
+
+
+std::string dir = "/home/abeauvisage/Insa/PhD/datasets/17_12_11/test/"; // directory where to save images
 std::ofstream image_data_file;
 //DeviceClass device;
 //XsPortInfo mtPort;
@@ -60,6 +82,9 @@ std::ofstream image_data_file;
 //XsMessageArray msgs;
 
 /*** global variables for each camera ***/
+
+ConfigWindow conf;
+deque<float> entropy;
 
 #if VISIBLE_0
 Device* pDev_0=0;
@@ -77,6 +102,8 @@ int request_1=INVALID_ID;
 
 unsigned int img_nb=1;
 
+float entropy_inf=0,entropy_vis=0,alpha=2.0;
+
 struct buffer {
 	void *		start;
 	size_t		length;
@@ -93,7 +120,7 @@ static unsigned int	n_buffers_0	= 0;
 static char *		dev_name_1	= NULL;
 static int		fd_1		= -1;
 struct buffer *		buffers_1		= NULL;
-static unsigned int	n_buffers_1	= 0;
+static unsigned int	n_buffers_1	= 1;
 #endif // INFRARED_1
 
 static off_t total_size = 0;
@@ -152,7 +179,7 @@ process_images (const void *p, int len, unsigned int seq, const void *p2, int le
 //	ms_time = ((seconds)*1000+useconds/1000.0+0.5);
     auto current_time_point = std::chrono::steady_clock::now();
     double stamp = current_time_point.time_since_epoch().count();
-	cout << "time: " << stamp << endl;
+//	cout << "time: " << stamp << endl;
 
     stringstream num; num << std::setfill('0') << std::setw(5) << img_nb; // saving image number
     #if DISPLAY
@@ -168,7 +195,9 @@ process_images (const void *p, int len, unsigned int seq, const void *p2, int le
 	#if INFRARED_1
 	cv::imshow("right",img_1);
 	#endif // INFRARED_1
-	cv::waitKey(5);
+	char k = cv::waitKey(5);
+	if(k == 'f')
+        conf.doFFC();
 	#else // if images are not displayed they are saved
 	#if VISIBLE_0
 	imwrite(dir+"cam0_image"+num.str()+".png",img_0);
@@ -263,6 +292,7 @@ read_frame			(FunctionInterface& fi, FunctionInterface& fi2) // retrieving buffe
                buf_1.sequence
                );
     #endif // INFRARED_0
+   // cv::waitKey(100);
     #if INFRARED_0
     if (-1 == xioctl (fd_0, VIDIOC_QBUF, &buf_0)){
         errno_exit ("VIDIOC_QBUF");
@@ -676,8 +706,9 @@ init_bluefox(FunctionInterface& fi_, ImageRequestControl& irc_, Device* pDev_, s
 //	cs.getHDRControl().HDREnable.write(b);
 	setting.cameraSetting.getHDRControl().HDREnable.write(bTrue);
 	setting.cameraSetting.getHDRControl().HDRMode.write(cHDRmFixed0);
-	setting.cameraSetting.expose_us.write(6000);
-	setting.cameraSetting.gain_dB.write(0);
+//	setting.cameraSetting.expose_us.write(50);
+	setting.cameraSetting.expose_us.write(1500);
+	setting.cameraSetting.gain_dB.write(5);
 	setting.cameraSetting.autoExposeControl.write(aecOff);
 	setting.cameraSetting.autoGainControl.write(agcOff);
 ////    #else
@@ -816,6 +847,8 @@ static void cleanup(void)
 	image_data_file.close();
 
 	fprintf(stderr, "done.\n");
+	conf.closeCamera();
+	cout << "camera closed " << endl;
 }
 
 
@@ -826,6 +859,17 @@ int main(int argc, char ** argv)
 	signal(SIGINT, quit_handler);
 	signal(SIGTERM, quit_handler);
 	signal(SIGUSR1, pause_handler);
+
+    conf.setPort("/dev/ttyUSB0");
+    conf.setBrightness(3100);
+    conf.setAGCMode(AGC_TYPE_MANUAL);
+    conf.doFFC();
+	#if DISPLAY
+	conf.show();
+
+//	tau2.send_request(CONTRAST,CameraTau2::m_contrast,true);
+//	tau2.send_request(BRIGHTNESS,CameraTau2::m_brightness,true);
+	#endif // DISPLAY
 
 	DeviceManager devMgr;
 	#if VISIBLE_0
@@ -906,11 +950,12 @@ int main(int argc, char ** argv)
 //        throw std::runtime_error("Could not put device into measurement mode. Aborting.");
 
 /************************************************************************************************/
-
-	cv::namedWindow("left",0);
-	cv::namedWindow("right",0);
+    #if DISPLAY
+	cv::namedWindow("left",WINDOW_AUTOSIZE);
+	cv::namedWindow("right",WINDOW_AUTOSIZE);
+	#endif // DISPLAY
 	open_device ();
-	std::string filename = dir+"image_data.txt";
+	std::string filename = dir+"image_data.csv";
 	image_data_file.open(filename.c_str(), std::ios_base::trunc);
 
     #if VISIBLE_0
@@ -965,6 +1010,8 @@ int main(int argc, char ** argv)
 	FunctionInterface fi_0(pDev_0);
 	mainloop(fi_0,fi_0);
 	#endif // VISIBLE_0
+
+
 
     return 0;
 }
