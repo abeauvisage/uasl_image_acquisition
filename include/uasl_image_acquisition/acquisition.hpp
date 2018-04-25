@@ -1,5 +1,5 @@
-#ifndef IMAGE_ACQUISITION_ACQUISITION_HPP
-#define IMAGE_ACQUISITION_ACQUISITION_HPP
+#ifndef UASL_IMAGE_ACQUISITION_ACQUISITION_HPP
+#define UASL_IMAGE_ACQUISITION_ACQUISITION_HPP
 
 #include "camera_sequential.hpp"
 #include "cond_var_package.hpp"

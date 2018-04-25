@@ -58,7 +58,7 @@ find_library(LIBSERIAL_LIBRARY
 )#Explicitly link the libusb to be sure to use this one
 
 include_directories(
-  include
+  include/uasl_image_acquisition
   ${OpenCV_INCLUDE_DIRS}
   ${MVBLUEFOX_INCLUDE_PATH}
 )

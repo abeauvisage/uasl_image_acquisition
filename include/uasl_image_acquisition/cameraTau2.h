@@ -1,5 +1,5 @@
-#ifndef CAMERATAU2_H
-#define CAMERATAU2_H
+#ifndef UASL_IMAGE_ACQUISITION_CAMERATAU2_H
+#define UASL_IMAGE_ACQUISITION_CAMERATAU2_H
 
 #include <string>
 #include <iostream>
