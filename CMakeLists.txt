@@ -55,10 +55,10 @@ find_library(MVLIBUSB1_LIBRARY
 	
 find_library(LIBSERIAL_LIBRARY
 	NAMES libserial.so.0
-)#Explicitly link the libusb to be sure to use this one
+)
 
 include_directories(
-  include/uasl_image_acquisition
+  include/${PROJECT_NAME}
   ${OpenCV_INCLUDE_DIRS}
   ${MVBLUEFOX_INCLUDE_PATH}
 )
