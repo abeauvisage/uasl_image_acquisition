@@ -91,6 +91,7 @@ unsigned short CameraTau2::send_request(const unsigned char fnumber, const unsig
     if(!m_serPort)
         cout << " end Error port" << endl;
     else
+    {}
 
     return result;
 }

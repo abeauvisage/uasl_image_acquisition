@@ -1,5 +1,5 @@
 <package>
-  <name>image_acquisition</name>
+  <name>uasl_image_acquisition</name>
   <version>1.0.0</version>
   <description>Image acquisition package</description>
 

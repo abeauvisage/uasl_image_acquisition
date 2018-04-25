@@ -49,6 +49,15 @@
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+//Static member
+unsigned short ConfigWindow::m_contrast;
+unsigned short ConfigWindow::m_brightness;
+
+int ConfigWindow::m_slider_contrast;
+int ConfigWindow::m_slider_brightness;
+
+CameraTau2 ConfigWindow::m_cam;
+
 
 using namespace std;
 using namespace cv;

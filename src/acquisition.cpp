@@ -2,7 +2,7 @@
 
 //Camera specific headers
 #if BLUEFOX_FOUND
-#include "camera_mvbluefox_seq.hpp"
+#include "camera_mvbluefox.hpp"
 #endif
 
 #include <stdexcept>
@@ -76,8 +76,8 @@ int Acquisition::add_camera(CameraType type, int id)
 		case bluefox:
 			try
 			{
-				if(id != default_cam_id) camera_vec.push_back(std::unique_ptr<CamBlueFoxSeq>(new CamBlueFoxSeq(acq_start_package, id)));
-				else camera_vec.push_back(std::unique_ptr<CamBlueFoxSeq>(new CamBlueFoxSeq(acq_start_package)));
+				if(id != default_cam_id) camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package, id)));
+				else camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package)));
 				images_vec.resize(camera_vec.size());				
 			}
 			catch(const std::exception& e)
