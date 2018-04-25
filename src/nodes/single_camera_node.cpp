@@ -4,6 +4,7 @@
 
 #include "camera_mvbluefox.hpp"
 
+#include <opencv2/core/version.hpp>
 #if CV_MAJOR_VERSION == 2                                                                                                       
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>                                                            
