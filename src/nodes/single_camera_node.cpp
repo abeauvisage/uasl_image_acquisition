@@ -4,7 +4,6 @@
 
 #include "camera_mvbluefox.hpp"
 
-#include <opencv2/core/version.hpp>
 #if CV_MAJOR_VERSION == 2                                                                                                       
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>                                                            
@@ -45,6 +44,7 @@ int main(int argc, char * argv[])
 	
 	ros::NodeHandle private_nh("~");
 	std::string cam_topic;
+    int cam_serial;
 	
 	if(private_nh.hasParam("cam_topic"))
 	{
@@ -56,11 +56,22 @@ int main(int argc, char * argv[])
 		ROS_ERROR_STREAM("Error : Cannot find the \"cam_topic\" parameter for the node. Quitting.");
 		return -1;
 	}	
+
+	if(private_nh.hasParam("cam_serial"))
+	{
+
+		private_nh.getParam("cam_serial", cam_serial);
+	}
+	else 
+	{
+		ROS_ERROR_STREAM("Error : Cannot find the \"cam_serial\" parameter for the node. Quitting.");
+		return -1;
+	}	
 	
 	image_transport::Publisher pub = it.advertise(cam_topic, 3);
 	
 	cam::Acquisition acq;
-    acq.add_camera(cam::bluefox, 30400337);
+    acq.add_camera(cam::bluefox, cam_serial);
     
     std::vector<cv::Mat> img_vec;//Vector to store the images
 	

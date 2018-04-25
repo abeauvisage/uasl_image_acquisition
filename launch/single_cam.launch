@@ -1,8 +1,9 @@
 <launch>
 
-<node pkg="image_acquisition" type="single_camera_node" name="single_cam_stream" output="screen">
+<node pkg="uasl_image_acquisition" type="single_camera_node" name="single_cam_stream" output="screen">
     <!-- Camera topic to publish to -->
     <param name="cam_topic" value="/camera/image_raw" type="str" />
+	<param name="cam_serial" value="26802713" type="int" />
 </node>
 
 </launch>
