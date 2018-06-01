@@ -5,6 +5,10 @@
 #include "camera_mvbluefox.hpp"
 #endif
 
+#if TAU2_FOUND
+#include "camera_tau2.hpp"
+#endif
+
 #include <stdexcept>
 #include <typeinfo>
 
@@ -13,7 +17,7 @@ namespace cam {
 
 //Public functions :
 
-Acquisition::Acquisition() 
+Acquisition::Acquisition()
 				: should_run(false)
 				, acq_start_package(*this)
 				, images_have_been_returned(true)
@@ -25,7 +29,7 @@ Acquisition::~Acquisition()
 }
 
 int Acquisition::start_acq()
-{	
+{
 	if(acq_thd.joinable())
 	{
 		std::cerr << "Acquisition thread is already running." << std::endl;
@@ -53,22 +57,25 @@ int Acquisition::start_acq()
 
 int Acquisition::stop_acq()
 {
+
 	std::lock_guard<std::mutex> lock(acq_start_package.mtx);
-	should_run.store(false);	
-	if(acq_thd.joinable()) acq_thd.join();
-		
+	should_run.store(false);
+	if(acq_thd.joinable())
+        acq_thd.join();
+
+
 	return 0;
 }
 
 int Acquisition::add_camera(CameraType type, int id)
 {
 	stop_acq();//Start by stopping any acquisition
-	
+
 	//Lock both the camera and image vectors at the same time
 	std::unique_lock<std::mutex> lock_cam(camera_vec_mtx, std::defer_lock);
     std::unique_lock<std::mutex> lock_img(images_vec_mtx, std::defer_lock);
     std::lock(lock_cam, lock_img);
-    
+
 	int ret_value = 0;
 	switch(type)
 	{
@@ -78,7 +85,7 @@ int Acquisition::add_camera(CameraType type, int id)
 			{
 				if(id != default_cam_id) camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package, id)));
 				else camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package)));
-				images_vec.resize(camera_vec.size());				
+				images_vec.resize(camera_vec.size());
 			}
 			catch(const std::exception& e)
 			{
@@ -86,13 +93,18 @@ int Acquisition::add_camera(CameraType type, int id)
 				ret_value = -1;
 			}
 			break;
-		#endif			
+		#endif
+		#if TAU2_FOUND
+		case tau2:
+            camera_vec.push_back(std::unique_ptr<CamTau2>(new CamTau2(acq_start_package)));
+            images_vec.resize(camera_vec.size());break;
+        #endif
 		default:
-			std::cerr << "Error : camera type non recognized." << std::endl;
+			std::cerr << "Error : camera type non recognized. Camera cannot be added." << std::endl;
 			ret_value = -2;
 			break;
 	}
-	
+
 	return ret_value;
 }
 
@@ -100,15 +112,15 @@ Camera_params& Acquisition::get_cam_params(size_t idx)
 {
 	//Get the parameters of a given camera. Throw exceptions if the index is invalid (the return type is preferred to an error code for usability reasons
 	stop_acq();
-	
+
 	//Lock the camera vector
 	std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);
-	
+
 	if(idx >= camera_vec.size())
 	{
 		throw std::out_of_range("Index out of range : should be between 0 and " + std::to_string(camera_vec.size() - 1) + " (inclusive).");
 	}
-	
+
 	return camera_vec[idx]->get_params();
 }
 
@@ -117,36 +129,38 @@ int Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 	std::unique_lock<std::mutex> mlock(images_ready_mtx);//Lock the images vector
 	bool success = !images_have_been_returned? true : images_have_changed.wait_for(mlock, std::chrono::milliseconds(timeout_ms), [this]{return !images_have_been_returned;});
 	if(!success) return -1;
-	
+
 	std::lock_guard<std::mutex> lock_images(images_vec_mtx);
 	img_vec_out.resize(images_vec.size());
 	for(size_t i = 0; i < images_vec.size(); ++i)
 	{
 		images_vec[i].copyTo(img_vec_out[i]);
 	}
-	
+
 	images_have_been_returned = true;
 	return 0;
 }
 
 //Private functions:
 void Acquisition::thread_func()
-{	
-	
+{
+
 	{//Mutex scope
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex
 		const size_t cam_number = camera_vec.size();
-	
+
 		if(cam_number == 0)
 		{
 			std::cerr << "Error : trying to launch an acquisition without cameras." << std::endl;
 			stop_acq();
+
+			return;
 		}
-	
+
 		const bool only_one_camera = (cam_number == 1);//If there is a unique camera
-		
+
 		//Open the trigger if more than 1 camera is started
-		if(!only_one_camera) 
+		if(!only_one_camera)
 		{
 			trigger.open_vcp();
 			if(!trigger.is_opened())
@@ -155,7 +169,7 @@ void Acquisition::thread_func()
 				stop_acq();
 			}
 		}
-		
+
 		//Start the acquisition for all cameras. Returns 0 if success, else an error code.
 		for(size_t i = 0;i<cam_number && should_run.load(); ++i)
 		{
@@ -166,48 +180,48 @@ void Acquisition::thread_func()
 			}
 		}
 	}
-	
+
 	while(should_run.load())
 	{
 		//Send the trigger
-		if(trigger.is_opened() && !trigger.send_trigger()) 
+		if(trigger.is_opened() && !trigger.send_trigger())
 		{
 			std::cerr << "Error during triggering." << std::endl;
 			continue;
 		}
-		
+
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex for all the duration of the processing
-		
+
 		const size_t cam_number = camera_vec.size();
-		
+
 		bool acquisition_ok = true; //If the acquisition is valid
-		
+
 		//Second, get the acquired pictures
 		{//Mutex scope
 			std::lock_guard<std::mutex> lock_img(images_vec_mtx);//Lock the vector of images
 			for(size_t i = 0;i<cam_number; ++i)
 			{
-				if(camera_vec[i]->retrieve_image(images_vec[i]) != 0) 
+				if(camera_vec[i]->retrieve_image(images_vec[i]) != 0)
 				{
 					acquisition_ok = false;//By design, the size of camera_vec and image_vec should be the same
 				}
 			}
 		}
-		
-		if(acquisition_ok) 
+
+		if(acquisition_ok)
 		{
 			std::lock_guard<std::mutex> lock_ready(images_ready_mtx);
 			images_have_been_returned = false;
 		}
-		
-		
+
+
 		if(acquisition_ok)
 		{
 			//If the acquisition is successful, update the status to indicate that new images have been taken
 			images_have_changed.notify_all();
-		}		
+		}
 	}
-	
+
 	close_cameras();
 }
 
@@ -224,7 +238,7 @@ void Acquisition::close_cameras()
 			std::cerr << "Camera " << i << " could not be stopped." << std::endl;
 		}
 	}
-	
+
 }
 } //namespace cam
 

@@ -3,6 +3,7 @@
 #include "util_signal.hpp"
 
 #include "camera_mvbluefox.hpp"
+#include "camera_tau2.hpp"
 
 #include <opencv2/core/version.hpp>
 #if CV_MAJOR_VERSION == 2
@@ -22,8 +23,7 @@ int main()
 	//Class for managing cameras
 	cam::Acquisition acq;
 
-    acq.add_camera(cam::bluefox, 25000812);
-//    acq.add_camera(cam::bluefox, 25000812);
+    acq.add_camera(cam::tau2, 25000812);
     //acq.add_camera(cam::bluefox, 30400333);
 
     std::vector<cv::Mat> img_vec;//Vector to store the images

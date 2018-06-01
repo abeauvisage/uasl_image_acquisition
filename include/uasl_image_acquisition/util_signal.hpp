@@ -9,7 +9,7 @@
 //NOTE : it is the responsability of the caller to define signal handling. The recommanded design is to block all
 //signals in main, so that each spawned thread ignore them also, and to periodically check them with a sigwait or
 //signalfd
-//See http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html#tag_15_04 
+//See http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html#tag_15_04
 //Note that initialising this class will block all signals in this thread and the future spawned threads
 
 namespace cam
@@ -17,7 +17,7 @@ namespace cam
 class SigHandler
 {
     public:
-    SigHandler() : 
+    SigHandler() :
         valid(true)
     {
         // Block signals in this thread, from
@@ -26,6 +26,7 @@ class SigHandler
         sigemptyset(&mask);
         sigaddset(&mask, SIGINT);
         sigaddset(&mask, SIGTERM);
+        sigaddset(&mask, SIGABRT);
         sigaddset(&mask, SIGHUP);
         sigaddset(&mask, SIGPIPE);
         if(pthread_sigmask(SIG_BLOCK, &mask, NULL))
@@ -50,20 +51,20 @@ class SigHandler
         //If the signal was catched, return 0 and the signal is saved
         //If there was no signal, returns 1.
         //If there was an error, returns 2.
-        if(!is_valid()) 
+        if(!is_valid())
         {
 						//The initialisation failed
             return 2;
         }
         int ret_poll = poll(&pfd, 1, 0);
-        
+
         if(!(ret_poll > 0 && (pfd.revents & POLLIN)))
         {
         	  //No signal; was received
             return 1;
         }
         //The signal is ready, read it
-        ssize_t s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo)); 
+        ssize_t s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
         if(s != sizeof(struct signalfd_siginfo))
         {
             return 2;
