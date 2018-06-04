@@ -26,8 +26,7 @@ int main()
 	cam::Acquisition acq;
 
     //Initialise one camera
-    acq.add_camera<cam::bluefox>(29900221);
-	//acq.add_camera(cam::bluefox, 29900221); //You can then add a second, third, etc, by calling the function add_camera again
+    acq.add_camera<cam::bluefox>(29900221);//You can then add a second, third, etc, by calling the function add_camera again
     
     std::vector<cv::Mat> img_vec;//Vector to store the images
     
