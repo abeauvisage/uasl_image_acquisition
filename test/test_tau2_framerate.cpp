@@ -23,7 +23,6 @@ int main()
 	cam::Acquisition acq;
 
     acq.add_camera<cam::tau2>(25000812);
-    //acq.add_camera(cam::tau2, 30400333);
 
     std::vector<cv::Mat> img_vec;//Vector to store the images
 
