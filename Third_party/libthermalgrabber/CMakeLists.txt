@@ -1,3 +1,4 @@
+project(thermalgrabber)
 set( CMAKE_BUILD_TYPE RelWithDebInfo )
 set( CMAKE_CXX_FLAGS "-std=c++11" )
 #set( CMAKE_CXX_FLAGS "-fpermissive -std=c++11" )
