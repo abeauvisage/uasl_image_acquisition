@@ -46,9 +46,13 @@ set(SRC_ACQ
 )
 
 #mvBLueFOX libraries (64 bits)
-set(MVBLUEFOX_TOP_LEVEL_PATH /opt/mvIMPACT_acquire CACHE PATH "Path to the whole mvImpact_acquire. To redefine if not in /opt")
+if(NOT MVBLUEFOX_TOP_LEVEL_PATH)
+set(MVBLUEFOX_TOP_LEVEL_PATH /opt/mvIMPACT_acquire)
+endif(NOT MVBLUEFOX_TOP_LEVEL_PATH)
 set(MVBLUEFOX_TOP_LEVEL_PATH_CACHE ${MVBLUEFOX_TOP_LEVEL_PATH} CACHE PATH "Path to the whole mvImpact_acquire folder." FORCE)
+set(MVBLUEFOX_LIB_PATH ${MVBLUEFOX_TOP_LEVEL_PATH_CACHE}/lib/x86_64 CACHE PATH "Path the the lib folder of the mvBlueFOX driver." FORCE)
 set(MVBLUEFOX_INCLUDE_PATH ${MVBLUEFOX_TOP_LEVEL_PATH_CACHE}/mvIMPACT_CPP ${MVBLUEFOX_TOP_LEVEL_PATH_CACHE} ${MVBLUEFOX_TOP_LEVEL_PATH_CACHE}/include/mvIMPACT_CPP ${MVBLUEFOX_TOP_LEVEL_PATH}/include CACHE PATH "Path the the header folder of the mvBlueFOX driver." FORCE)
+
 
 find_library(LIBTHERMALGRABBER_LIBRARY
 	NAMES libthermalgrabber.so
@@ -57,12 +61,7 @@ find_library(LIBTHERMALGRABBER_LIBRARY
 	
 find_library(MVDEVICEMANAGER_LIBRARY 
 	NAMES mvDeviceManager
-	HINTS /opt/mvIMPACT_acquire/lib/x86_64)#Only the mvDeviceManager library needs to be linked
-	
-#find_library(MVLIBUSB1_LIBRARY
-#	NAMES libusb-1.0.so
-#	PATHS /usr/lib64
-#	NO_DEFAULT_PATH)#Explicitly link the libusb to be sure to use this one
+	HINTS ${MVBLUEFOX_LIB_PATH})#Only the mvDeviceManager library needs to be linked
 	
 find_library(LIBSERIAL_LIBRARY
 	NAMES libserial.so.0
@@ -107,24 +106,24 @@ target_link_libraries(bluefox_acq ${MVDEVICEMANAGER_LIBRARY} ${OpenCV_LIBRARIES}
 
 #Testing script
 add_executable(test_bluefox_framerate test/test_bluefox_framerate.cpp)
-target_link_libraries(test_bluefox_framerate acq_seq tau2_acq bluefox_acq)
+target_link_libraries(test_bluefox_framerate acq_seq bluefox_acq)
 
 add_executable(test_all_cameras_framerate test/test_all_cameras_framerate.cpp)
 target_link_libraries(test_all_cameras_framerate acq_seq tau2_acq bluefox_acq)
 
 add_executable(test_bluefox_image_format test/test_bluefox_image_format.cpp)
-target_link_libraries(test_bluefox_image_format acq_seq tau2_acq bluefox_acq)
+target_link_libraries(test_bluefox_image_format acq_seq bluefox_acq)
 
 #Example code
 add_executable(example_bluefox examples/example_bluefox.cpp)
-target_link_libraries(example_bluefox acq_seq tau2_acq bluefox_acq)
+target_link_libraries(example_bluefox acq_seq bluefox_acq)
 
 else(MVDEVICEMANAGER_LIBRARY)
 message(WARNING "MVBlueFox driver not found, libraries related to this module will be ignored.")
 endif(MVDEVICEMANAGER_LIBRARY )
 
 add_executable(test_tau2_framerate test/test_tau2_framerate.cpp)
-target_link_libraries(test_tau2_framerate acq_seq tau2_acq bluefox_acq)
+target_link_libraries(test_tau2_framerate acq_seq tau2_acq)
 
 if(BUILD_ROS_NODE)
 	add_executable(single_camera_node src/nodes/single_camera_node.cpp)
