@@ -1,14 +1,5 @@
 #include "acquisition.hpp"
 
-//Camera specific headers
-#if BLUEFOX_FOUND
-#include "camera_mvbluefox.hpp"
-#endif
-
-#if TAU2_FOUND
-#include "camera_tau2.hpp"
-#endif
-
 #include <stdexcept>
 #include <typeinfo>
 
@@ -67,47 +58,6 @@ int Acquisition::stop_acq()
 	return 0;
 }
 
-int Acquisition::add_camera(CameraType type, int id)
-{
-	stop_acq();//Start by stopping any acquisition
-
-	//Lock both the camera and image vectors at the same time
-	std::unique_lock<std::mutex> lock_cam(camera_vec_mtx, std::defer_lock);
-    std::unique_lock<std::mutex> lock_img(images_vec_mtx, std::defer_lock);
-    std::lock(lock_cam, lock_img);
-
-	int ret_value = 0;
-	switch(type)
-	{
-		#if BLUEFOX_FOUND
-		case bluefox:
-			try
-			{
-				if(id != default_cam_id) camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package, id)));
-				else camera_vec.push_back(std::unique_ptr<CamBlueFox>(new CamBlueFox(acq_start_package)));
-				images_vec.resize(camera_vec.size());
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << "Exception during a camera addition : " << e.what() << std::endl;
-				ret_value = -1;
-			}
-			break;
-		#endif
-		#if TAU2_FOUND
-		case tau2:
-            camera_vec.push_back(std::unique_ptr<CamTau2>(new CamTau2(acq_start_package)));
-            images_vec.resize(camera_vec.size());break;
-        #endif
-		default:
-			std::cerr << "Error : camera type non recognized. Camera cannot be added." << std::endl;
-			ret_value = -2;
-			break;
-	}
-
-	return ret_value;
-}
-
 Camera_params& Acquisition::get_cam_params(size_t idx)
 {
 	//Get the parameters of a given camera. Throw exceptions if the index is invalid (the return type is preferred to an error code for usability reasons
@@ -118,7 +68,7 @@ Camera_params& Acquisition::get_cam_params(size_t idx)
 
 	if(idx >= camera_vec.size())
 	{
-		throw std::out_of_range("Index out of range : should be between 0 and " + std::to_string(camera_vec.size() - 1) + " (inclusive).");
+		throw std::out_of_range("Index out of range : should be between 0 and " + std::to_string(camera_vec.size()) + " (exclusive).");
 	}
 
 	return camera_vec[idx]->get_params();

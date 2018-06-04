@@ -20,7 +20,8 @@ int main()
 	cam::Acquisition acq;
 
 	//Add a camera
-    acq.add_camera(cam::bluefox, 25000812);
+    acq.add_camera<cam::bluefox>(25000812);
+    //acq.add_camera(cam::bluefox, 25000812);
     std::vector<cv::Mat> img_vec;//Vector to store the images
 
     int signal_received;

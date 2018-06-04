@@ -127,6 +127,9 @@ class CamBlueFox : public Camera_seq
     
 }; //class CamBlueFox
 
+template<>
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, int id);
+
 template<typename T> bool check_property(const T& property_value, mvIMPACT::acquire::EnumPropertyI<T>& property)
 {
 	//Check if a given integer property is present in the device

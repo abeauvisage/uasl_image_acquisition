@@ -90,6 +90,9 @@ class CamTau2 : public Camera_seq
 
 }; //class CamTau2
 
+template<>
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, int id);
+
 } //namespace cam
 
 #endif

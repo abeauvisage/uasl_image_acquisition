@@ -22,13 +22,12 @@ int main()
 	//Class for managing cameras
 	cam::Acquisition acq;
 
-    acq.add_camera(cam::bluefox, 25000812);
-//    acq.add_camera(cam::bluefox, 25000812);
-    //acq.add_camera(cam::bluefox, 30400333);
+    acq.add_camera<cam::bluefox>(29900221);
+    //acq.add_camera(cam::bluefox, 29900221);
 
     std::vector<cv::Mat> img_vec;//Vector to store the images
 
-    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_size(640,480);
+    dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_size(640,480);
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_image_size(640,480);
 
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(true);

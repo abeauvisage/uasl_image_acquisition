@@ -9,6 +9,12 @@
 namespace cam
 {
 
+template<>
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, int id)
+{
+	return std::unique_ptr<CamTau2>(new CamTau2(package, id));				
+} 
+
 void CamTau2::callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller)
 {
     CamTau2* ptr = static_cast<CamTau2*>(caller);

@@ -25,8 +25,6 @@
 
 namespace cam {
 
-enum CameraType {bluefox,tau2};
-
 static constexpr int timeout_ms = 1000;//Timeout value in milliseconds for retrieving the set of images
 static constexpr int timeout_delay_ms = 5000;//Timeout value in milliseconds for getting the acquisition lock
 
@@ -40,8 +38,47 @@ class Acquisition
 
 	int start_acq();//Start the acquisition for all cameras
 	int stop_acq();//Stop the acquisition for all cameras
+	
+	template <CameraType T>
+	int add_camera(int id = default_cam_id)//Add a camera (stops the acquisition)
+	{
+		//This function has to be in the header due to the template
+		stop_acq();//Start by stopping any acquisition
 
-	int add_camera(CameraType type, int id = default_cam_id);//Add a camera (stops the acquisition)
+		//Lock both the camera and image vectors at the same time
+		std::unique_lock<std::mutex> lock_cam(camera_vec_mtx, std::defer_lock);
+		std::unique_lock<std::mutex> lock_img(images_vec_mtx, std::defer_lock);
+		std::lock(lock_cam, lock_img);
+		
+		std::unique_ptr<Camera_seq> cam_ptr = nullptr;
+
+		int ret_value = 0;
+	
+		try
+		{
+			cam_ptr = Camera_seq::get_instance<T>(acq_start_package,id);							
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << "Exception during a camera addition : " << e.what() << std::endl;
+			ret_value = -1;
+		}
+	
+		if(cam_ptr)
+		{
+			camera_vec.push_back(std::move(cam_ptr));
+			images_vec.resize(camera_vec.size());
+		}
+		else
+		{
+			std::cerr << "Error : camera type non recognized. Camera cannot be added." << std::endl;
+			std::cerr << "Please check that the corresponding camera library is correctly link to the executable." << std::endl;	
+		}
+	
+		return ret_value;
+	}
+	
+	int add_camera(CameraType type, int id = default_cam_id);
 
 	Camera_params& get_cam_params(size_t idx);//Get the parameters of a specific camera to modify them (stops the acquisition)
 

@@ -12,7 +12,8 @@
 
 namespace cam
 {
-class Cond_var_package;
+
+enum CameraType {bluefox,tau2};
 
 class Camera_params
 {
@@ -32,7 +33,13 @@ class Camera_seq
     virtual int retrieve_image(cv::Mat& img) = 0;
 	virtual int start_acq(bool only_one_camera) = 0;
     virtual int stop_acq() = 0;    
-    virtual Camera_params& get_params() = 0;    
+    virtual Camera_params& get_params() = 0; 
+    
+    template <CameraType T> 
+    static std::unique_ptr<Camera_seq> get_instance(Cond_var_package& package, int camId)
+    {
+    	return nullptr;				
+    }    
 }; //class Camera_seq
 
 } //namespace cam

@@ -6,6 +6,13 @@
 
 namespace cam
 {
+
+template<>
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, int id)
+{
+	return std::unique_ptr<CamBlueFox>(new CamBlueFox(package, id));				
+}  
+
 //BlueFoxParameters : Public functions
 void BlueFoxParameters::set_image_size(int width, int height)
 {
