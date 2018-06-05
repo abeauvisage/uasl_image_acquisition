@@ -40,7 +40,7 @@ int main()
 		
   	//Loop variables to manage the interruption of the program
 	bool looping = true;
-	int signal_received;
+	int signal_received = -1;
 
 	//ret_sig is the signal detected by the OS (if any). This has no direct relevance to the camera itself, 
 	//but is necessary to allow the program to stop : at each iteration, we check if a signal (here, SIGINT)

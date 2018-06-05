@@ -1,8 +1,7 @@
+cmake_minimum_required(VERSION 2.8) 
 project(thermalgrabber)
-set( CMAKE_BUILD_TYPE RelWithDebInfo )
 set( CMAKE_CXX_FLAGS "-std=c++11" )
 #set( CMAKE_CXX_FLAGS "-fpermissive -std=c++11" )
-set( CMAKE_VERBOSE_MAKEFILE on )
 set( TARGET thermalgrabber )
 set( ROOT ./ )
 set( LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib )
@@ -16,11 +15,11 @@ cmake_minimum_required(VERSION 2.8)
 
 if (WIN32)
 
-    MESSAGE("Setup for windows")
+    MESSAGE(STATUS "Setup for windows")
 
     if (USE_FTDI_LIB)
 
-        MESSAGE("Using ftdi lib")
+        MESSAGE(STATUS "thermalgrabber : Using ftdi lib")
         ADD_DEFINITIONS(-DUSE_FTDI)
 
         include_directories (
@@ -37,7 +36,7 @@ if (WIN32)
 
     elseif (NOT USE_FTDI_LIB)
 
-        MESSAGE("Using libusb")
+        MESSAGE(STATUS "thermalgrabber : Using libusb")
 
         include_directories (
             ${CMAKE_CURRENT_SOURCE_DIR}/src/inc
@@ -55,15 +54,15 @@ if (WIN32)
 
 elseif (NOT WIN32)
 
-    MESSAGE("Setup for linux")
+    MESSAGE(STATUS "thermalgrabber : Setup for linux")
 
     if (USE_FTDI_LIB)
 
-        MESSAGE("Not implemented")
+        MESSAGE(STATUS "thermalgrabber : Not implemented")
 
     elseif (NOT USE_FTDI_LIB)
 
-        MESSAGE("Using libusb")
+        MESSAGE(STATUS "thermalgrabber : Using libusb")
 
         include_directories (
             /usr/include/libusb-1.0
