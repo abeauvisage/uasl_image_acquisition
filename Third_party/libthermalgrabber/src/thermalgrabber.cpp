@@ -231,6 +231,29 @@ void ThermalGrabber::setGainMode(thermal_grabber::GainMode gm)
         std::cerr << "setGainMode failed: No connection to tau core" << std::endl;
 }
 
+void ThermalGrabber::setTriggerMode(thermal_grabber::TriggerMode tm)
+{
+    if (mTauInterface != NULL)
+    {
+        switch (tm)
+        {
+        case thermal_grabber::TriggerMode::disabled:
+            mTauInterface->disableTrigger();
+            break;
+        case thermal_grabber::TriggerMode::slave:
+            mTauInterface->enableTriggerSlave();
+            break;
+        case thermal_grabber::TriggerMode::master:
+            mTauInterface->enableTriggerMaster();
+            break;
+        default:
+            std::cerr << "setTriggerMode with invalid parameter" << std::endl;
+        }
+    }
+    else
+        std::cerr << "setGainMode failed: No connection to tau core" << std::endl;
+}
+
 void ThermalGrabber::enableTLinearHighResolution()
 {
     if (mTauInterface != NULL)

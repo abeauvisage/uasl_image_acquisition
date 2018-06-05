@@ -132,6 +132,12 @@ enum GainMode {
     HighGain,
     Manual
 };
+
+enum TriggerMode{
+    disabled,
+    slave,
+    master,
+};
 }
 
 //! Class for connecting "Thermal Capture Grabber USB".
@@ -266,6 +272,8 @@ public:
      * \param gainMode Enum of Type GainMode.
      */
     void setGainMode(thermal_grabber::GainMode gainMode);
+    void setTriggerMode(thermal_grabber::TriggerMode triggerMode);
+//    thermal_grabber::TriggerMode getTriggerMode(thermal_grabber::TriggerMode triggerMode) const;
 
     //! Enables TLinear in high resolution
     /*!

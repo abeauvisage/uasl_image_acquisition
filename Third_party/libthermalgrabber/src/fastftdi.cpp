@@ -714,11 +714,11 @@ FTDIDevice_Write(FTDIDevice *dev, FTDIInterface interface,
     else
     {
 
-        std::cout << std::endl << "Request with " << length << " bytes: ";
-        std::cout << std::hex;
-        for (int i=0; i<length; i++)
-            std::cout << (unsigned int)data[i] << " ";
-        std::cout << std::dec << std::endl;
+//        std::cout << std::endl << "Request with " << length << " bytes: ";
+//        std::cout << std::hex;
+//        for (int i=0; i<length; i++)
+//            std::cout << (unsigned int)data[i] << " ";
+//        std::cout << std::dec << std::endl;
 
         int transferred;
         err = libusb_bulk_transfer(dev->handle, FTDI_EP_OUT(interface),

@@ -71,6 +71,10 @@ public:
     void enableTLinear();
     void disableTLinear();
 
+    void disableTrigger();
+    void enableTriggerSlave();
+    void enableTriggerMaster();
+
     void setTLinearHighResolution();
     void setTlinearLowResolution();
 

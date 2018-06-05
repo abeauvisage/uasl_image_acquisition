@@ -23,23 +23,25 @@
 
 namespace cam
 {
-static constexpr int pixel_format_dt(CV_8U);//Default pixel format //(has to be coherent with pixel_fromat_output_d)
+static constexpr int pixel_format_dt(CV_16U);//Default pixel format //(has to be coherent with pixel_fromat_output_d)
 static constexpr int width_dt(640);//Default width (if max width is not available)
-static constexpr int height_dt(480);//Default height (if max height is not available)
-static const int trigger_dt(0);//Default setting for the trigger mode. See
-
-static constexpr int timeout_retrieve_ms = 100;
+static constexpr int height_dt(512);//Default height (if max height is not available)
+static constexpr int startx_dt(0);//Default width (if max width is not available)
+static constexpr int starty_dt(0);//Default height (if max height is not available)
+static constexpr int timeout_retrieve_ms=100;
 
 class Tau2Parameters : public Camera_params
 {
 	public:
-	Tau2Parameters(Cond_var_package& package_) : Camera_params(package_),
+	Tau2Parameters(Cond_var_package& package_) :    Camera_params(package_),
+                                                    image_ROI(startx_dt,starty_dt,width_dt,height_dt),
 													pixel_format(pixel_format_dt)
 													{}
 
 	//Please note that the following set functions stop the acquisition
-    void set_image_size(int width, int height);
-    void set_trigger_mode(int trigger_mode);
+    void set_image_roi(int startx, int starty, int width, int height);
+    void set_pixel_format(int pixel_format);
+    void set_trigger_mode(thermal_grabber::TriggerMode trigger_mode);
 
     void setThermalGrabber(ThermalGrabber* p_grab_){
         p_grab = p_grab_;
@@ -50,8 +52,13 @@ class Tau2Parameters : public Camera_params
     	return pixel_format;
     }
 
+    cv::Rect get_image_roi() const{
+        return image_ROI;
+    }
+
     private:
     ThermalGrabber* p_grab; //thermal grabber
+    cv::Rect image_ROI;
     int pixel_format;//Pixel format for the output image
 
 }; //class Tau2Parameters
@@ -81,11 +88,9 @@ class CamTau2 : public Camera_seq
     std::condition_variable cv;
     std::mutex image_available_mutex;
     cv::Mat image_acquired;
-
     bool opened;//True if the camera has been successfully opened (different from mvIMPACT::acquire::Device::isOpen)
 
     void init(int camId = -1);//Initialisation function for the camera
-
     static void callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller);
 
 }; //class CamTau2

@@ -13,7 +13,7 @@ void watchDog(TauInterface* instance)
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         if (TauInterface::watchDogCnt < 9)
-            std::cerr << "watchdog " << TauInterface::watchDogCnt << std::endl;
+//            std::cerr << "watchdog " << TauInterface::watchDogCnt << std::endl;
 
         TauInterface::watchDogCnt--;
 
@@ -29,10 +29,10 @@ void watchDog(TauInterface* instance)
                 ti->threadTauConnection.join();
             }
 
-            std::cerr << "Resetting usb connection" << std::endl;
+//            std::cerr << "Resetting usb connection" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-            std::cerr << "Connecting ThermalCapture GrabberUSB" << std::endl;
+//            std::cerr << "Connecting ThermalCapture GrabberUSB" << std::endl;
 
             if (!strcmp(ti->mISerialUSB, ""))
             {
@@ -100,6 +100,10 @@ static constexpr char GAIN_MODE_Manual[3] = {0x0A, 0x00, 0x03};
 // Bytes 2-3: TLin Enable Status
 static constexpr char TLIN_COMMANDS_ENABLE[5] = {(char)0x8E, 0x00, 0x40, 0x00, 0x01}; // cmd enable TLinear
 static constexpr char TLIN_COMMANDS_DISABLE[5] = {(char)0x8E, 0x00, 0x40, 0x00, 0x00}; // cmd disable TLinear
+
+static constexpr char TRIGGER_COMMANDS_DISABLED[3] = {(char)0x21,0x00,0x00};
+static constexpr char TRIGGER_COMMANDS_SLAVE[3] = {(char)0x21,0x00,0x01};
+static constexpr char TRIGGER_COMMANDS_MASTER[3] = {(char)0x21,0x00,0x02};
 
 // TLinear Resolution 0x8E
 // Bytes 0-1: 0x0010
@@ -336,22 +340,22 @@ bool TauInterface::checkSettings()
     if (!configIsRead)
         return false;
 
-    std::cout << "Results of config check:" << std::endl;
-
-    if (mDigitalOutputEnabledStatus)
-        std::cout << "- Digital Output is enabled" << std::endl;
-    else
-        std::cout << "- Digital Output is disabled" << std::endl;
-
-    if (mDigitalOutputCMOSBitDepth14bitStatus)
-        std::cout << "- CMOS 14 bit enabled" << std::endl;
-    else
-        std::cout << "- CMOS 14 bit disabled" << std::endl;
-
-    if (mDigitalOutputXPMode14bitStatus)
-        std::cout << "- XP Mode 14bit enabled" << std::endl;
-    else
-        std::cout << "- XP Mode 14bit disabled" << std::endl;
+//    std::cout << "Results of config check:" << std::endl;
+//
+//    if (mDigitalOutputEnabledStatus)
+//        std::cout << "- Digital Output is enabled" << std::endl;
+//    else
+//        std::cout << "- Digital Output is disabled" << std::endl;
+//
+//    if (mDigitalOutputCMOSBitDepth14bitStatus)
+//        std::cout << "- CMOS 14 bit enabled" << std::endl;
+//    else
+//        std::cout << "- CMOS 14 bit disabled" << std::endl;
+//
+//    if (mDigitalOutputXPMode14bitStatus)
+//        std::cout << "- XP Mode 14bit enabled" << std::endl;
+//    else
+//        std::cout << "- XP Mode 14bit disabled" << std::endl;
 
 //    if (mTLinearEnabledStatus)
 //        std::cout << "- TLinear enabled" << std::endl;
@@ -432,7 +436,7 @@ bool TauInterface::checkSettings()
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
     }
-	std::cout << "returning true" << std::endl;
+
     return true;
 }
 
@@ -496,7 +500,6 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
 //        std::cout << (int)(char)buffer[i];
 //    std::cout << std::dec << std::endl;
 
-    std::cout << std::endl << "Response: ";
 
     switch (buffer[3])  // parse function code
     {
@@ -973,3 +976,25 @@ void TauInterface::setDigitalOutputMode_XPModeCMOSBitDepth14()
             const_cast<char*>(&DIGITAL_OUTPUT_MODE_CMOS_BIT_DEPTH_14[1]),
             sizeof(DIGITAL_OUTPUT_MODE_CMOS_BIT_DEPTH_14)-1);
 }
+
+void TauInterface::disableTrigger()
+{
+    sendCommand(TRIGGER_COMMANDS_DISABLED[0],
+            const_cast<char*>(&TRIGGER_COMMANDS_DISABLED[1]),
+            sizeof(TRIGGER_COMMANDS_DISABLED)-1);
+}
+
+void TauInterface::enableTriggerSlave()
+{
+    sendCommand(TRIGGER_COMMANDS_SLAVE[0],
+            const_cast<char*>(&TRIGGER_COMMANDS_SLAVE[1]),
+            sizeof(TRIGGER_COMMANDS_SLAVE)-1);
+}
+
+void TauInterface::enableTriggerMaster()
+{
+    sendCommand(TRIGGER_COMMANDS_MASTER[0],
+            const_cast<char*>(&TRIGGER_COMMANDS_MASTER[1]),
+            sizeof(TRIGGER_COMMANDS_MASTER)-1);
+}
+

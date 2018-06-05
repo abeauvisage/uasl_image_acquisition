@@ -26,11 +26,8 @@ int main()
 
     std::vector<cv::Mat> img_vec;//Vector to store the images
 
-    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_size(640,480);
-    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_image_size(640,480);
-
-    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(true);
-    //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_aec(true);
+    dynamic_cast<cam::Tau2Parameters&>(acq.get_cam_params(0)).set_image_roi(0,16,640,480);
+    dynamic_cast<cam::Tau2Parameters&>(acq.get_cam_params(0)).set_pixel_format(CV_8U);
 
     //Loop variables
     bool looping = true;
@@ -41,13 +38,13 @@ int main()
 
     acq.start_acq();//Start the acquisition
 
-//    for(;;)
     for(int signal_received, ret_sig = sig_handle.get_signal(signal_received);looping && ret_sig != 2 ;ret_sig = sig_handle.get_signal(signal_received))
     {
 		if(ret_sig == 0 && (signal_received == SIGINT || signal_received == SIGTERM || signal_received == SIGABRT))
 		{
 			looping = false;//A signal is catched, and it is SIGINT
-			std::cout << "SIGINT caught." << std::endl;
+			std::cout << "Signal caught." << std::endl;
+			acq.stop_acq();
 			break;
 		}
 

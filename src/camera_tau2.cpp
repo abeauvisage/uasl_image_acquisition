@@ -12,8 +12,8 @@ namespace cam
 template<>
 std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, int id)
 {
-	return std::unique_ptr<CamTau2>(new CamTau2(package, id));				
-} 
+	return std::unique_ptr<CamTau2>(new CamTau2(package, id));
+}
 
 void CamTau2::callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller)
 {
@@ -21,13 +21,27 @@ void CamTau2::callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller)
     if(!ptr)
         return;
 
-    cv::Mat img(tauRawBitmap.height,tauRawBitmap.width,CV_16U,tauRawBitmap.data);
+    cv::Mat img = cv::Mat(tauRawBitmap.height,tauRawBitmap.width,CV_16U,tauRawBitmap.data)(ptr->params.get_image_roi());
 
-    double m = 10.0/64.0;
-    double mean_img = cv::mean(img)[0];
-    img = img * m + (127-mean_img* m);
-    img.convertTo(img, CV_8U);
-    cv::equalizeHist(img,img);
+    switch(ptr->params.get_pixel_format()){
+        case CV_8U:
+        {
+            double m = 10.0/64.0;
+            double mean_img = cv::mean(img)[0];
+            img = img * m + (127-mean_img* m);
+            img.convertTo(img, CV_8U);
+            cv::equalizeHist(img,img);
+            break;
+        }
+        case CV_16U:
+        // image already 16bit, nothing to do
+        break;
+        default:
+            std::cerr << "[Tau2] Error pixel format not recognised. please select 8U/16U" << std::endl;
+        break;
+    }
+
+
     {
         std::lock_guard<std::mutex> lock(ptr->image_available_mutex);
         img.copyTo(ptr->image_acquired);
@@ -53,26 +67,19 @@ int CamTau2::retrieve_image(cv::Mat& image)
     return 0;
 }
 
-void Tau2Parameters::set_image_size(int width_,int height_)
+void Tau2Parameters::set_pixel_format(int pixel_format_)
 {
-
-    if(p_grab->is_opened())
-    {
-        width_=640;
-        height_=480;
-//        p_grab->setResolutionWidth(width_);
-//        p_grab->setResolutionHeight(height_);
-    }
-    else
-    {
-        std::cerr << "[Tau2] could not set resolution. Camera is not connected!" << std::endl;
-    }
+    pixel_format = pixel_format_;
 }
 
-void Tau2Parameters::set_trigger_mode(int trigger_mode_)
+void Tau2Parameters::set_image_roi(int startx_, int starty_,int width_,int height_)
 {
-    //TODO
-    trigger_mode_=0;
+    image_ROI = cv::Rect(startx_,starty_,width_,height_);
+}
+
+void Tau2Parameters::set_trigger_mode(thermal_grabber::TriggerMode trigger_mode_)
+{
+    p_grab->setTriggerMode(trigger_mode_);
 }
 
 CamTau2::CamTau2(Cond_var_package& package_, int camID_) : params(package_), new_image_available(false), opened(false)
@@ -93,15 +100,17 @@ int CamTau2::start_acq(bool only_one_camera)
         return -10;
     }
 
-//    std::cout << "one cam: " << std::endl;
-    if(!only_one_camera)
+    if(only_one_camera)
     {
-        //set cam to trigger mode (slave)
+        //set cam to continuous
+        p_grab->setTriggerMode(thermal_grabber::TriggerMode::disabled);
         p_grab->doFFC();
     }
     else
     {
-        //set cam to continous
+        //set cam to trigger mode (slave)
+        p_grab->setTriggerMode(thermal_grabber::TriggerMode::slave);
+        p_grab->doFFC();
     }
 
     return 0;
@@ -118,16 +127,13 @@ int CamTau2::stop_acq()
 void CamTau2::init(int camID)
 {
 
-    p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this));
-
-    //TO DO check nb cam
     if(camID == -1)
     {
-        //get first camera found
+        p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this));
     }
     else
     {
-        // get correponding cam
+        p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this,"FT2HKAW5"));
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -139,10 +145,6 @@ void CamTau2::init(int camID)
         p_grab.reset();
     }
 
-    //open camera return if failed
-//    params.set_image_size(width_dt,height_dt);
-//    params.set_trigger_mode(trigger_dt);
-//    std::cout << "before" << std::endl;
     std::cout << "[Tau2] Camera " << p_grab->getCameraSerialNumber() << " has been opened successfully" << std::endl;
 
     if(!clock_type::is_steady)
