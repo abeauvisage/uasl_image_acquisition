@@ -305,7 +305,7 @@ void FTDI_PrintDeviceList()
 }
 
 int
-FTDIDevice_Open(FTDIDevice *dev, char* iSerialUSB)
+FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
 {
 
 #ifdef USE_FTDI

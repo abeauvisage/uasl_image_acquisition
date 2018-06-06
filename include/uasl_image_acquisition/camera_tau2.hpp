@@ -66,7 +66,7 @@ class Tau2Parameters : public Camera_params
 class CamTau2 : public Camera_seq
 {
 	public:
-    CamTau2(Cond_var_package& package_, int camId = -1);//Open a camera by serial number, or the first one found if camId is negative
+    CamTau2(Cond_var_package& package_, const std::string& cam_id);//Open a camera by serial number, or the first one found if camId is negative
     virtual ~CamTau2();
 
     int start_acq(bool only_one_camera) override;
@@ -90,13 +90,13 @@ class CamTau2 : public Camera_seq
     cv::Mat image_acquired;
     bool opened;//True if the camera has been successfully opened (different from mvIMPACT::acquire::Device::isOpen)
 
-    void init(int camId = -1);//Initialisation function for the camera
+    void init(const std::string& cam_id);//Initialisation function for the camera
     static void callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller);
 
 }; //class CamTau2
 
 template<>
-std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, int id);
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, const std::string& cam_id);
 
 } //namespace cam
 

@@ -189,7 +189,7 @@ TauInterface::~TauInterface()
     }
 }
 
-static void threadWrapper(TauInterface* ti, char* iSerialUSB)
+static void threadWrapper(TauInterface* ti, const char* iSerialUSB)
 {
 //    std::cout << "thread wrapper" << std::endl;
     ti->runGrabber(iSerialUSB);
@@ -222,7 +222,7 @@ bool TauInterface::connect()
     return checkSettings();
 }
 
-bool TauInterface::connect(char* iSerialUSB)
+bool TauInterface::connect(const char* iSerialUSB)
 {
     // safe the iSerialUSB for possible reconnects
     strncpy(&mISerialUSB[0], iSerialUSB, sizeof(mISerialUSB));

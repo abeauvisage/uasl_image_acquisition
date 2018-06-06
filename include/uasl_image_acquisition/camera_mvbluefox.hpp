@@ -86,7 +86,7 @@ class BlueFoxParameters : public Camera_params
 class CamBlueFox : public Camera_seq
 {
 	public:
-    CamBlueFox(Cond_var_package& package_, int camId = -1);//Open a camera by serial number, or the first one found if camId is negative
+    CamBlueFox(Cond_var_package& package_, const std::string& cam_id);//Open a camera by serial number, or the first one found if camId is negative
     virtual ~CamBlueFox();
     
     int start_acq(bool only_one_camera) override;
@@ -109,7 +109,7 @@ class CamBlueFox : public Camera_seq
     
     bool opened;//True if the camera has been successfully opened (different from mvIMPACT::acquire::Device::isOpen)
     
-    void init(int camId = -1);//Initialisation function for the camera
+    void init(const std::string& cam_id);//Initialisation function for the camera
     
     void empty_request_queue();//Empty the request queue of the camera
     
@@ -128,7 +128,7 @@ class CamBlueFox : public Camera_seq
 }; //class CamBlueFox
 
 template<>
-std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, int id);
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, const std::string& cam_id);
 
 template<typename T> bool check_property(const T& property_value, mvIMPACT::acquire::EnumPropertyI<T>& property)
 {

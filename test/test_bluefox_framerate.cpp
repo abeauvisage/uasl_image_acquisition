@@ -22,7 +22,7 @@ int main()
 	//Class for managing cameras
 	cam::Acquisition acq;
 
-    acq.add_camera<cam::bluefox>(29900221);
+    acq.add_camera<cam::bluefox>("29900221");
 
     std::vector<cv::Mat> img_vec;//Vector to store the images
 

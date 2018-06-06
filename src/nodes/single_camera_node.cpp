@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
 	
 	ros::NodeHandle private_nh("~");
 	std::string cam_topic;
-    int cam_serial;
+    std::string cam_serial;
 	
 	if(private_nh.hasParam("cam_topic"))
 	{

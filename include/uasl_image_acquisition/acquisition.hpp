@@ -21,6 +21,7 @@
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
+#include <string>
 
 
 namespace cam {
@@ -28,7 +29,7 @@ namespace cam {
 static constexpr int timeout_ms = 1000;//Timeout value in milliseconds for retrieving the set of images
 static constexpr int timeout_delay_ms = 5000;//Timeout value in milliseconds for getting the acquisition lock
 
-static constexpr int default_cam_id = -1;//Default id number to pass to cameras (if the id is equal to this number, no id is sent)
+static constexpr char default_cam_id[] = "";//Default id value for the camera
 
 class Acquisition
 {
@@ -40,7 +41,7 @@ class Acquisition
 	int stop_acq();//Stop the acquisition for all cameras
 	
 	template <CameraType T>
-	int add_camera(int id = default_cam_id)//Add a camera (stops the acquisition)
+	int add_camera(const std::string& cam_id = std::string(default_cam_id))//Add a camera (stops the acquisition)
 	{
 		//This function has to be in the header due to the template
 		stop_acq();//Start by stopping any acquisition
@@ -56,7 +57,7 @@ class Acquisition
 	
 		try
 		{
-			cam_ptr = Camera_seq::get_instance<T>(acq_start_package,id);							
+			cam_ptr = Camera_seq::get_instance<T>(acq_start_package,cam_id);							
 		}
 		catch(const std::exception& e)
 		{
@@ -77,8 +78,6 @@ class Acquisition
 	
 		return ret_value;
 	}
-	
-	int add_camera(CameraType type, int id = default_cam_id);
 
 	Camera_params& get_cam_params(size_t idx);//Get the parameters of a specific camera to modify them (stops the acquisition)
 

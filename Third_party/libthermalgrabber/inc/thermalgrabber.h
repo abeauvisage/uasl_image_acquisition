@@ -189,7 +189,7 @@ public:
     *   \param caller Calling instance.
     *   \param iSerialUSB Char string representation of iSerial.
      */
-    ThermalGrabber(callbackThermalGrabber cb, void* caller, char* iSerialUSB);
+    ThermalGrabber(callbackThermalGrabber cb, void* caller, const char* iSerialUSB);
 
     //! Destructor of ThermalGrabber.
     /*!

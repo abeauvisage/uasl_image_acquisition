@@ -271,7 +271,7 @@ int ThermoGrabber::readCallback(uint8_t *buffer, int length, void *)
 }
 
 
-int ThermoGrabber::runGrabber(char* iSerialUSB)
+int ThermoGrabber::runGrabber(const char* iSerialUSB)
 {
 //    FTDI_PrintDeviceList();
 

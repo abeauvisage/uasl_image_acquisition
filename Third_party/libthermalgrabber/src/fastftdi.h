@@ -129,7 +129,7 @@ typedef int (FTDIStreamCallback)(uint8_t *buffer, int length,
  */
 void FTDI_PrintDeviceList();
 
-int FTDIDevice_Open(FTDIDevice *dev, char* iSerialUSB);
+int FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB);
 
 void FTDIDevice_Close(FTDIDevice *dev);
 int FTDIDevice_Reset(FTDIDevice *dev);

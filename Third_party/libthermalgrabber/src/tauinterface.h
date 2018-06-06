@@ -30,7 +30,7 @@ public:
       * Connect the ThermalCapture GrabberUSB hardware.
     */
     bool connect();
-    bool connect(char* iSerialUSB);
+    bool connect(const char* iSerialUSB);
 
     /**
       * Sending a byte based command to the tau core.

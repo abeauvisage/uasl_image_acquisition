@@ -10,9 +10,9 @@ namespace cam
 {
 
 template<>
-std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, int id)
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<tau2>(Cond_var_package& package, const std::string& cam_id)
 {
-	return std::unique_ptr<CamTau2>(new CamTau2(package, id));
+	return std::unique_ptr<CamTau2>(new CamTau2(package, cam_id));
 }
 
 void CamTau2::callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller)
@@ -82,9 +82,9 @@ void Tau2Parameters::set_trigger_mode(thermal_grabber::TriggerMode trigger_mode_
     p_grab->setTriggerMode(trigger_mode_);
 }
 
-CamTau2::CamTau2(Cond_var_package& package_, int camID_) : params(package_), new_image_available(false), opened(false)
+CamTau2::CamTau2(Cond_var_package& package_, const std::string& cam_id_) : params(package_), new_image_available(false), opened(false)
 {
-    init(camID_);
+    init(cam_id_);
 }
 
 CamTau2::~CamTau2()
@@ -124,16 +124,16 @@ int CamTau2::stop_acq()
 
 
 
-void CamTau2::init(int camID)
+void CamTau2::init(const std::string& cam_id)
 {
 
-    if(camID == -1)
+    if(cam_id.empty())
     {
         p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this));
     }
     else
     {
-        p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this,"FT2HKAW5"));
+        p_grab = std::unique_ptr<ThermalGrabber>(new ThermalGrabber(callbackTauImage, this,cam_id.c_str()));
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -143,6 +143,7 @@ void CamTau2::init(int camID)
     {
         std::cerr << "[Tau2] could not open camera, check connection." << std::endl;
         p_grab.reset();
+        return;
     }
 
     std::cout << "[Tau2] Camera " << p_grab->getCameraSerialNumber() << " has been opened successfully" << std::endl;

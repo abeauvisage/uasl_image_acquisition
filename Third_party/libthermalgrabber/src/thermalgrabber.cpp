@@ -20,7 +20,7 @@ ThermalGrabber::ThermalGrabber(callbackThermalGrabber ptr, void* caller): opened
     opened = mTauInterface->connect();
 }
 
-ThermalGrabber::ThermalGrabber(callbackThermalGrabber ptr, void* caller, char* iSerialUSB): opened(false)
+ThermalGrabber::ThermalGrabber(callbackThermalGrabber ptr, void* caller, const char* iSerialUSB): opened(false)
 {
     mTauInterface = NULL;
     mCallbackThermalGrabber = ptr;

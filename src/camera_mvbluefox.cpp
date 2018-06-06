@@ -8,9 +8,9 @@ namespace cam
 {
 
 template<>
-std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, int id)
+std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, const std::string& cam_id)
 {
-	return std::unique_ptr<CamBlueFox>(new CamBlueFox(package, id));				
+	return std::unique_ptr<CamBlueFox>(new CamBlueFox(package, cam_id));				
 }  
 
 //BlueFoxParameters : Public functions
@@ -161,11 +161,11 @@ void BlueFoxParameters::set_request_timeout_ms(int timeout_ms)
 }
 
 //CamBlueFox : public functions
-CamBlueFox::CamBlueFox(Cond_var_package& package_, int camId)
+CamBlueFox::CamBlueFox(Cond_var_package& package_, const std::string& cam_id)
 	: params(package_)
 	, opened(false)
 {
-	init(camId);
+	init(cam_id);
 }
 
 CamBlueFox::~CamBlueFox()
@@ -311,7 +311,7 @@ int CamBlueFox::retrieve_image(cv::Mat& image)
 }
 
 //Private functions:
-void CamBlueFox::init(int camId)
+void CamBlueFox::init(const std::string& cam_id)
 {
     //Update the device list
     dev_mgr.changedCount();
@@ -321,14 +321,11 @@ void CamBlueFox::init(int camId)
         std::cerr << "Bluefox : No device detected." <<std::endl;
         return;
     }
-    if(camId == -1)
-    {
-        p_dev = dev_mgr[0];
-    }
-    else
-    {
-        p_dev = dev_mgr.getDeviceBySerial(std::to_string(camId));
-    }
+    
+    
+    p_dev = dev_mgr.getDeviceBySerial(cam_id);//Load the camera matching the id
+    
+    if(!p_dev) p_dev = dev_mgr[0];//If no camera found, load the first one detected
 
     if(p_dev == nullptr) 
     {

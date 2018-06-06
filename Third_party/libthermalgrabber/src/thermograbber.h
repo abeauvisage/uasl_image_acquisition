@@ -12,7 +12,7 @@ public:
 
     //Run this function to initiate the connection to ThermoGrabber USB hardware
     //int runGrabber(void);
-    int runGrabber(char *iSerialUSB);
+    int runGrabber(const char *iSerialUSB);
 
     //Closes the connection to the USB hardware, runGrabber will return after calling this
     void stopGrabber(void);

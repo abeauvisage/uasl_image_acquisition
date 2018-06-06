@@ -6,7 +6,7 @@
 <node pkg="uasl_image_acquisition" type="single_camera_node" name="single_cam_stream" output="screen">
     <!-- Camera topic to publish to -->
     <param name="cam_topic" value="$(arg topic)" type="str" />
-	<param name="cam_serial" value="$(arg serial)" type="int" />
+	<param name="cam_serial" value="$(arg serial)" type="str" />
 </node>
 
 </launch>

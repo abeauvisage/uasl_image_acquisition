@@ -2,6 +2,8 @@
 #define UASL_IMAGE_ACQUISITION_CAMERA_SEQUENTIAL_HPP
 
 #include "cond_var_package.hpp"
+#include <memory>
+#include <string>
 
 #include "opencv2/core/version.hpp"
 #if CV_MAJOR_VERSION == 2
@@ -36,7 +38,7 @@ class Camera_seq
     virtual Camera_params& get_params() = 0; 
     
     template <CameraType T> 
-    static std::unique_ptr<Camera_seq> get_instance(Cond_var_package& package, int camId)
+    static std::unique_ptr<Camera_seq> get_instance(Cond_var_package& package, const std::string& cam_id)
     {
     	return nullptr;				
     }    
