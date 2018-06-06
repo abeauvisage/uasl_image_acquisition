@@ -9,6 +9,11 @@ find_package(Threads REQUIRED)
 option(BUILD_ROS_NODE "Build ROS node" ON)
 option(TAU2_DRIVER "Build libthermalgrabber" ON)
 
+#RPATH parameters
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
 if(BUILD_ROS_NODE)
 	find_package(catkin REQUIRED COMPONENTS roscpp cv_bridge image_transport)
 	catkin_package(
@@ -42,11 +47,17 @@ set(MVBLUEFOX_INCLUDE_PATH ${MVBLUEFOX_TOP_LEVEL_PATH_CACHE}/mvIMPACT_CPP ${MVBL
 
 find_library(MVDEVICEMANAGER_LIBRARY 
 	NAMES mvDeviceManager
-	PATHS ${MVBLUEFOX_LIB_PATH})#Only the mvDeviceManager library needs to be linked
+	PATHS ${MVBLUEFOX_LIB_PATH}
+	NO_DEFAULT_PATH)
 	
-if(MVDEVICEMANAGER_LIBRARY)
+find_library(MVPROPHANDLING_LIBRARY 
+	NAMES mvPropHandling
+	PATHS ${MVBLUEFOX_LIB_PATH}
+	NO_DEFAULT_PATH)
+	
+if(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY)
 	add_library(bluefox_acq src/camera_mvbluefox.cpp)
-	target_link_libraries(bluefox_acq ${MVDEVICEMANAGER_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(bluefox_acq ${MVDEVICEMANAGER_LIBRARY} ${MVPROPHANDLING_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 	#Testing scripts
 	add_executable(test_bluefox_framerate test/test_bluefox_framerate.cpp)
@@ -63,9 +74,9 @@ if(MVDEVICEMANAGER_LIBRARY)
 		add_executable(single_camera_node src/nodes/single_camera_node.cpp)
 		target_link_libraries(single_camera_node acq_seq bluefox_acq ${catkin_LIBRARIES}) 
 	endif(BUILD_ROS_NODE)
-else(MVDEVICEMANAGER_LIBRARY)
+else(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY )
 	message(WARNING "MVBlueFox driver not found, libraries related to this module will be ignored.")
-endif(MVDEVICEMANAGER_LIBRARY )
+endif(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY )
 	
 
 #Tau2 libraries ----------------------------------------------
@@ -74,13 +85,15 @@ endif(MVDEVICEMANAGER_LIBRARY )
 #	NAMES libserial.so.0
 #)
 if(TAU2_DRIVER)
+						
 	add_subdirectory(Third_party/libthermalgrabber)						
 	
-	add_library(tau2_acq src/camera_tau2.cpp)
-	target_link_libraries(tau2_acq thermalgrabber ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+	add_library(tau2_acq src/camera_tau2.cpp)					
+	
+	target_link_libraries(tau2_acq thermalgrabber ${OpenCV_LIBRARIES})
 		
 	add_executable(test_tau2_framerate test/test_tau2_framerate.cpp)
-	target_link_libraries(test_tau2_framerate acq_seq tau2_acq)
+	target_link_libraries(test_tau2_framerate acq_seq tau2_acq )
 endif(TAU2_DRIVER)
 
 #All libs ----------------------------------------------
@@ -88,6 +101,8 @@ if(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
 	add_executable(test_all_cameras_framerate test/test_all_cameras_framerate.cpp)
 	target_link_libraries(test_all_cameras_framerate acq_seq tau2_acq bluefox_acq)
 endif(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
+
+
 
 include_directories(
   include/${PROJECT_NAME}

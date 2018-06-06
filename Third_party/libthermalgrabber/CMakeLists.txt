@@ -9,10 +9,6 @@ set( LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 #set(USE_FTDI_LIB 1)
 
 
-cmake_minimum_required(VERSION 2.8)
-
-
-
 if (WIN32)
 
     MESSAGE(STATUS "Setup for windows")
@@ -63,20 +59,17 @@ elseif (NOT WIN32)
     elseif (NOT USE_FTDI_LIB)
 
         MESSAGE(STATUS "thermalgrabber : Using libusb")
-
+		find_library(LIB_USB_1
+					NAMES usb-1.0)
+					
+		if(NOT LIB_USB_1)
+  		message(FATAL_ERROR "libusb-1.0 not found")
+		endif(NOT LIB_USB_1)
+		
         include_directories (
             /usr/include/libusb-1.0
             /usr/local/include/libusb-1.0
 
-        )
-
-        link_directories (
-            /usr/lib/x86_64-linux-gnu
-            /usr/local/lib
-        )
-
-        link_libraries (
-            usb-1.0
         )
 
     endif (USE_FTDI_LIB)
@@ -123,10 +116,20 @@ link_directories (
     #${CMAKE_CURRENT_SOURCE_DIR}/src/lib/ftdi_i386
 )
 
-add_library( ${TARGET} SHARED ${SOURCES} )
+add_library( ${TARGET} ${SOURCES} )
 install( TARGETS ${TARGET} DESTINATION lib )
 
+find_package(Threads REQUIRED)
 target_link_libraries(
     ${TARGET}
-    pthread
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${LIB_USB_1}
 )
+
+get_filename_component(LIB_USB_1_PATH_REAL ${LIB_USB_1} REALPATH)
+get_filename_component(LIB_USB_1_DIRECTORY ${LIB_USB_1_PATH_REAL} DIRECTORY)
+
+SET(CMAKE_INSTALL_RPATH "${LIBRARY_OUTPUT_PATH}"
+						"${LIB_USB_1_DIRECTORY}"
+						"${CMAKE_INSTALL_RPATH}"
+						PARENT_SCOPE)
