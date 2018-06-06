@@ -40,6 +40,8 @@ class Acquisition
 	int start_acq();//Start the acquisition for all cameras
 	int stop_acq();//Stop the acquisition for all cameras
 	
+	bool is_running();//Returns true if an acquisition is currently running
+	
 	template <CameraType T>
 	int add_camera(const std::string& cam_id = std::string(default_cam_id))//Add a camera (stops the acquisition)
 	{

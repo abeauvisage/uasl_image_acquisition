@@ -58,6 +58,20 @@ int Acquisition::stop_acq()
 	return 0;
 }
 
+bool Acquisition::is_running()
+{
+
+	std::lock_guard<std::mutex> lock(acq_start_package.mtx);
+	//The lock is not necessary since we check an atomic boolean
+	//However, it ensures that the answer we get is accurate : if we don't lock, and stop_acq was called
+	//soon after a start_acq, then should_run will only switch to false after stop_acq acquires the lock
+	//Thus, if we wait for the lock ourselves, we will return the correct value : false
+	//If we don't lock, we might get the result too soon and get true, even if stop_acq has already been called
+	bool is_running = should_run.load();
+
+	return is_running;
+}
+
 Camera_params& Acquisition::get_cam_params(size_t idx)
 {
 	//Get the parameters of a given camera. Throw exceptions if the index is invalid (the return type is preferred to an error code for usability reasons
