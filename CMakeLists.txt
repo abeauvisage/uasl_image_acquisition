@@ -31,10 +31,12 @@ endif()
 
 EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCH)#Get the architecture to locate the correct librairies
 
+file(GLOB HEADERS "include/${PROJECT_NAME}/*.hpp")
+
 #Trigger code
 add_library(trigger src/trigger.cpp)
 
-add_library(acq_seq src/acquisition.cpp)
+add_library(acq_seq src/acquisition.cpp ${HEADERS})
 target_link_libraries(acq_seq trigger ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 #mvBLueFOX libraries (64 bits) ----------------------------------------------
@@ -94,6 +96,10 @@ if(TAU2_DRIVER)
 		
 	add_executable(test_tau2_framerate test/test_tau2_framerate.cpp)
 	target_link_libraries(test_tau2_framerate acq_seq tau2_acq )
+
+	#Example code
+	add_executable(example_tau2 examples/example_tau2.cpp)
+	target_link_libraries(example_tau2 acq_seq tau2_acq)
 endif(TAU2_DRIVER)
 
 #All libs ----------------------------------------------

@@ -45,6 +45,20 @@ class SigHandler
 
     bool is_valid() const { return valid; }
 
+    bool check(){
+        int sig_received=-1;
+        int ret_signal = get_signal(sig_received);
+            if(!ret_signal){
+                switch(sig_received){
+                    case SIGINT: std::cout << "SIGINT received" << std::endl;return false;
+                    case SIGTERM: std::cout << "SIGTERM received" << std::endl;return false;
+                    case SIGABRT: std::cout << "SIGABRT received" << std::endl;return false;
+                }
+            }
+
+            return true;
+    }
+
     int get_signal(int& signal)
     {
         //Get a signal if it has been catched.

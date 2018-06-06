@@ -22,7 +22,7 @@ int main()
 	//Class for managing cameras
 	cam::Acquisition acq;
 
-    acq.add_camera<cam::tau2>("25000812");
+    acq.add_camera<cam::tau2>("FT2HKAW5");
 
     std::vector<cv::Mat> img_vec;//Vector to store the images
 
@@ -38,16 +38,8 @@ int main()
 
     acq.start_acq();//Start the acquisition
 
-    for(int signal_received, ret_sig = sig_handle.get_signal(signal_received);looping && ret_sig != 2 ;ret_sig = sig_handle.get_signal(signal_received))
+    while(sig_handle.check() && acq.is_running())
     {
-		if(ret_sig == 0 && (signal_received == SIGINT || signal_received == SIGTERM || signal_received == SIGABRT))
-		{
-			looping = false;//A signal is catched, and it is SIGINT
-			std::cout << "Signal caught." << std::endl;
-			acq.stop_acq();
-			break;
-		}
-
 		int ret_acq = acq.get_images(img_vec);
 		if(!ret_acq)
 		{
@@ -72,6 +64,5 @@ int main()
 			start = std::chrono::steady_clock::now();
 		}
 	}
-
     return 0;
 }
