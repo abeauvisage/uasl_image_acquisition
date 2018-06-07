@@ -32,25 +32,15 @@ int main()
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_aec(true);
     //dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(1)).set_aec(true);
 
-    //Loop variables
-    bool looping = true;
-    unsigned int count = 0;
-
     std::chrono::time_point<std::chrono::steady_clock> start, end;//Variable to measure framerate
     start = std::chrono::steady_clock::now();
+    
+    unsigned int count = 0;
 
     acq.start_acq();//Start the acquisition
 
-//    for(;;)
-    for(int signal_received, ret_sig = sig_handle.get_signal(signal_received);looping && ret_sig != 2 ;ret_sig = sig_handle.get_signal(signal_received))
+    for(;sig_handle.check_term_sig();)
     {
-		if(ret_sig == 0 && (signal_received == SIGINT || signal_received == SIGTERM || signal_received == SIGABRT))
-		{
-			looping = false;//A signal is catched, and it is SIGINT
-			std::cout << "SIGINT caught." << std::endl;
-			break;
-		}
-
 		int ret_acq = acq.get_images(img_vec);
 		if(!ret_acq)
 		{

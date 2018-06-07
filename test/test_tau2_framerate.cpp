@@ -29,8 +29,6 @@ int main()
     dynamic_cast<cam::Tau2Parameters&>(acq.get_cam_params(0)).set_image_roi(0,16,640,480);
     dynamic_cast<cam::Tau2Parameters&>(acq.get_cam_params(0)).set_pixel_format(CV_8U);
 
-    //Loop variables
-    bool looping = true;
     unsigned int count = 0;
 
     std::chrono::time_point<std::chrono::steady_clock> start, end;//Variable to measure framerate
@@ -38,7 +36,7 @@ int main()
 
     acq.start_acq();//Start the acquisition
 
-    while(sig_handle.check() && acq.is_running())
+    while(sig_handle.check_term_sig() && acq.is_running())
     {
 		int ret_acq = acq.get_images(img_vec);
 		if(!ret_acq)
@@ -54,8 +52,6 @@ int main()
 			}
 			cv::waitKey(1);
 		}
-
-
 
 		if(count && count%100 == 0)//Print framerate every 100 frames
 		{

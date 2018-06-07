@@ -45,18 +45,26 @@ class SigHandler
 
     bool is_valid() const { return valid; }
 
-    bool check(){
+    bool check_term_sig(int * signal = nullptr)
+    {
+    	//Check if any signal requiring termination has been received
+    	//If a non null pointer is provided, the value of the received signal will be stored here
         int sig_received=-1;
         int ret_signal = get_signal(sig_received);
-            if(!ret_signal){
-                switch(sig_received){
-                    case SIGINT: std::cout << "SIGINT received" << std::endl;return false;
-                    case SIGTERM: std::cout << "SIGTERM received" << std::endl;return false;
-                    case SIGABRT: std::cout << "SIGABRT received" << std::endl;return false;
-                }
+        if(!ret_signal)
+        {
+            switch(sig_received)
+            {
+                case SIGINT:
+                case SIGTERM:
+                case SIGABRT:
+                	if(signal) *signal = sig_received;
+                	return false;
             }
+        }
+        else if(ret_signal == 2) return false;
 
-            return true;
+        return true;
     }
 
     int get_signal(int& signal)
@@ -67,7 +75,7 @@ class SigHandler
         //If there was an error, returns 2.
         if(!is_valid())
         {
-						//The initialisation failed
+			//The initialisation failed
             return 2;
         }
         int ret_poll = poll(&pfd, 1, 0);

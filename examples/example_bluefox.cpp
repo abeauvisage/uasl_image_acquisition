@@ -38,20 +38,12 @@ int main()
     //Start the acquisition
     acq.start_acq();
 		
-  	//Loop variables to manage the interruption of the program
-	bool looping = true;
-	int signal_received = -1;
 
-	//ret_sig is the signal detected by the OS (if any). This has no direct relevance to the camera itself, 
-	//but is necessary to allow the program to stop : at each iteration, we check if a signal (here, SIGINT)
+	//The sighandle has no direct relevance to the camera itself, 
+	//but is necessary to allow the program to stop : at each iteration, we check if an interruption signal
 	//was received.
-	for(int ret_sig = -1;looping && ret_sig != 2;ret_sig = sig_handle.get_signal(signal_received))
-	{
-		if(ret_sig == 0 && signal_received == SIGINT) 
-		{
-			looping = false;//A signal is catched, and it is SIGINT
-			std::cout << "SIGINT caught, exiting." << std::endl;
-		}			
+	for(;sig_handle.check_term_sig();)
+	{			
 		//Get the pictures
 		int ret_acq = acq.get_images(img_vec);
 		if(ret_acq == 0)

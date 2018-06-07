@@ -40,7 +40,7 @@ int main()
 
 	//sig_handle check for signals detected by the OS (if any). This has no direct relevance to the camera itself,
 	//but is necessary to allow the program to stop : at each iteration, we check if a signal was received.
-	while(sig_handle.check() && acq.is_running())
+	while(sig_handle.check_term_sig() && acq.is_running())
 	{
 		//Get the pictures
 		int ret_acq = acq.get_images(img_vec);
