@@ -3,6 +3,16 @@ PROJECT(uasl_image_acquisition)
 
 add_definitions(-std=c++11)
 
+#Function to purge a list of paths of non existing paths
+function(purge_non_exist_paths input_path)
+	foreach(path IN LISTS ${input_path})
+		if(EXISTS ${path})
+			set(TEMP_PATH_LIST ${TEMP_PATH_LIST} ${path})
+		endif()
+	endforeach()
+	set(${input_path} ${TEMP_PATH_LIST} PARENT_SCOPE)
+endfunction()
+
 find_package(OpenCV REQUIRED)#Depend on your version of OpenCV and ROS installed. If your cv_bridge package relies on OpenCV 2, find_package(OpenCV 2 REQUIRED) is what you need. Else, find_package(OpenCV REQUIRED) will automatically look for OpenCV3.
 find_package(Threads REQUIRED)
 
@@ -16,13 +26,6 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 if(BUILD_ROS_NODE)
 	find_package(catkin REQUIRED COMPONENTS roscpp cv_bridge image_transport)
-	catkin_package(
-		  DEPENDS OpenCV
-		  CATKIN_DEPENDS roscpp image_transport cv_bridge
-		  INCLUDE_DIRS include
-		  LIBRARIES trigger acq_seq bluefox_acq tau2_acq#External libraries created by this package
-	)
-	include_directories(${catkin_INCLUDE_DIRS})
 endif(BUILD_ROS_NODE)
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
@@ -33,13 +36,7 @@ EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCH)#Get th
 
 file(GLOB HEADERS "include/${PROJECT_NAME}/*.hpp")
 
-#Trigger code
-add_library(trigger src/trigger.cpp)
-
-add_library(acq_seq src/acquisition.cpp ${HEADERS})
-target_link_libraries(acq_seq trigger ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-#mvBLueFOX libraries (64 bits) ----------------------------------------------
+#search for mvBLueFOX libraries (64 bits) ----------------------------------------------
 if(NOT MVBLUEFOX_TOP_LEVEL_PATH)
 set(MVBLUEFOX_TOP_LEVEL_PATH /opt/mvIMPACT_acquire)
 endif(NOT MVBLUEFOX_TOP_LEVEL_PATH)
@@ -56,7 +53,47 @@ find_library(MVPROPHANDLING_LIBRARY
 	NAMES mvPropHandling
 	PATHS ${MVBLUEFOX_LIB_PATH}
 	NO_DEFAULT_PATH)
+
+#Define path for tau2 driver (no need to search since it is included)
+if(TAU2_DRIVER)
+set(TAU2_DRIVER_INCLUDE_PATH "Third_party/libthermalgrabber/inc")
+endif(TAU2_DRIVER)
 	
+#Check for libraries
+if(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY)
+set(SPECIFIC_CAM_LIBS ${SPECIFIC_CAM_LIBS} bluefox_acq)
+set(SPECIFIC_CAM_INCLUDE ${SPECIFIC_CAM_INCLUDE} ${MVBLUEFOX_INCLUDE_PATH})
+endif(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY)
+
+if(TAU2_DRIVER)
+set(SPECIFIC_CAM_LIBS ${SPECIFIC_CAM_LIBS} tau2_acq)
+set(SPECIFIC_CAM_INCLUDE ${SPECIFIC_CAM_INCLUDE} ${TAU2_DRIVER_INCLUDE_PATH})
+endif(TAU2_DRIVER)
+
+#Purge the non existing paths from the list
+purge_non_exist_paths(SPECIFIC_CAM_INCLUDE)
+
+#Note : since catkin_package must be called before any call to add_library or add_executable,
+#but we need to know wich libraries have been detected to call catkin_package, we need to split
+#the library detection and library use in two
+
+if(BUILD_ROS_NODE)
+	catkin_package(
+		  DEPENDS OpenCV
+		  CATKIN_DEPENDS roscpp image_transport cv_bridge
+		  INCLUDE_DIRS include ${SPECIFIC_CAM_INCLUDE}
+		  LIBRARIES trigger acq_seq ${SPECIFIC_CAM_LIBS}#External libraries created by this package
+	)
+	include_directories(${catkin_INCLUDE_DIRS})
+endif(BUILD_ROS_NODE)
+
+#Trigger code
+add_library(trigger src/trigger.cpp)
+
+add_library(acq_seq src/acquisition.cpp ${HEADERS})
+target_link_libraries(acq_seq trigger ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+
 if(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY)
 	add_library(bluefox_acq src/camera_mvbluefox.cpp)
 	target_link_libraries(bluefox_acq ${MVDEVICEMANAGER_LIBRARY} ${MVPROPHANDLING_LIBRARY} ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
@@ -112,7 +149,7 @@ endif(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
 
 include_directories(
   include/${PROJECT_NAME}
-  Third_party/libthermalgrabber/inc
+  ${TAU2_DRIVER_INCLUDE_PATH}
   ${OpenCV_INCLUDE_DIRS}
   ${MVBLUEFOX_INCLUDE_PATH}
 )
