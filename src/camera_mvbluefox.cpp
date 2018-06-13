@@ -196,11 +196,11 @@ int CamBlueFox::start_acq(bool only_one_camera)
 	if(!only_one_camera)
 	{
 		//Check if the OnHighLevel is supported by the camera
-		bool mode_available_acq = check_property<mvIMPACT::acquire::TCameraTriggerMode>(ctmOnHighLevel, cam_settings.triggerMode);
+		bool mode_available_acq = check_property<mvIMPACT::acquire::TCameraTriggerMode>(ctmOnLowLevel, cam_settings.triggerMode);
 		
 		if(mode_available_acq)
 		{
-			cam_settings.triggerMode.write(ctmOnHighLevel);
+			cam_settings.triggerMode.write(ctmOnLowLevel);
 			
 			//Print the maximal framerate
 			if(cam_settings.expose_us.isValid() && cam_settings.aoiHeight.isValid()) std::cout << "Maximal frame rate for camera (Serial " << p_dev->serial.read() << ") in FPS : " << 1.0/(static_cast<double>(cam_settings.expose_us.read())/1e6 + (static_cast<double>(cam_settings.aoiHeight.read()) * (1650.0 / 40e6)) + (25.0 * (1650.0 / 40e6))) << std::endl;
@@ -213,9 +213,9 @@ int CamBlueFox::start_acq(bool only_one_camera)
 		
 		if(mode_available_acq)//If we use a trigger, set the input 0
 		{
-			bool check_input_0 = check_property<mvIMPACT::acquire::TCameraTriggerSource>(ctsDigIn1 , cam_settings.triggerSource);
+			bool check_input_0 = check_property<mvIMPACT::acquire::TCameraTriggerSource>(ctsDigIn0 , cam_settings.triggerSource);
 			
-			if(check_input_0) cam_settings.triggerSource.write(ctsDigIn1);
+			if(check_input_0) cam_settings.triggerSource.write(ctsDigIn0);
 			else
 			{
 				std::cout << "Warning : the digitial input used is not available." << std::endl;

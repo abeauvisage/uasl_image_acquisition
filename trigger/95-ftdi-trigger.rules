@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", SUBSYSTEMS=="usb", ATTRS{idProduct}=="6001", ATTRS{idVendor}=="0403", MODE="0660", GROUP="dialout" SYMLINK+="ttyTRIGGER"

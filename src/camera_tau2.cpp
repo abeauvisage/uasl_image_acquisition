@@ -109,7 +109,7 @@ int CamTau2::start_acq(bool only_one_camera)
     else
     {
         //set cam to trigger mode (slave)
-        p_grab->setTriggerMode(thermal_grabber::TriggerMode::slave);
+        p_grab->setTriggerMode(thermal_grabber::TriggerMode::disabled);
         p_grab->doFFC();
     }
 

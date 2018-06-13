@@ -27,3 +27,19 @@ Optional argument :
 ### Examples :
 - Look at the "examples" folder for examples on how to use the camera classes. The "test" folder contains test programs that you can use to test the behaviour of the program. Make sure to change the ID of the camera to yours before compiling and running.
 
+
+### Trigger:
+
+1. Copy trigger/95-ftdi-trigger.rules to udev rules directory if using ftdi usb converter for trigger (or trinket pro):
+	cp trigger/95-ftdi-trigger.rules /etc/udev/rules.d/
+
+2. Reload udev rules
+	udevadm control --reload
+
+3. plug trigger and check if it is detected
+	ls /dev
+	ttyTRIGGER should appear
+
+4. Run stereo_example (Don't forget to replace the camera serials/types with your cameras)
+
+/!\ if using Tau2 making sure the camera is configured in Continious mode, trigger won't work in slave mode. (normally it is already configured in the class so it shouldn't be a problem).

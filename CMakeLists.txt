@@ -104,8 +104,8 @@ endif(TAU2_DRIVER)
 
 #All libs ----------------------------------------------
 if(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
-	add_executable(test_all_cameras_framerate test/test_all_cameras_framerate.cpp)
-	target_link_libraries(test_all_cameras_framerate acq_seq tau2_acq bluefox_acq)
+	add_executable(stereo_example examples/stereo_example.cpp)
+	target_link_libraries(stereo_example acq_seq tau2_acq bluefox_acq)
 endif(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
 
 
