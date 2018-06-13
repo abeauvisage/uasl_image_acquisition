@@ -112,7 +112,29 @@ void BlueFoxParameters::set_trigger_mode(mvIMPACT::acquire::TCameraTriggerMode t
 	if(!check_cam() || !lock.is_valid()) return;
     
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
-	cam_settings.triggerMode.write(trigger_mode);
+	
+	bool check_trigger_mode = check_property<mvIMPACT::acquire::TCameraTriggerMode>(trigger_mode, cam_settings.triggerMode);
+	
+	if(check_trigger_mode) cam_settings.triggerMode.write(trigger_mode);
+	else
+	{
+		std::cout << "Warning : attempt to set the trigger mode to a value not available." << std::endl;
+	}
+}
+
+void BlueFoxParameters::set_trigger_source(mvIMPACT::acquire::TCameraTriggerSource trigger_source)
+{
+	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
+	if(!check_cam() || !lock.is_valid()) return;
+    
+	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
+	bool check_source = check_property<mvIMPACT::acquire::TCameraTriggerSource>(trigger_source, cam_settings.triggerSource);
+			
+	if(check_source) cam_settings.triggerSource.write(trigger_source);
+	else
+	{
+		std::cout << "Warning : attempt to set the trigger source to a value not available." << std::endl;
+	}
 }
 
 void BlueFoxParameters::set_exposure_time(int exposure_time_us)
@@ -209,17 +231,6 @@ int CamBlueFox::start_acq(bool only_one_camera)
 		{
 				cam_settings.triggerMode.write(ctmContinuous);
 				std::cout << "Warning : camera (Serial " << p_dev->serial.read() << ") does not support external trigger. Defaulting on continuous. Synchronization might be compromised." << std::endl; 
-		}
-		
-		if(mode_available_acq)//If we use a trigger, set the input 0
-		{
-			bool check_input_0 = check_property<mvIMPACT::acquire::TCameraTriggerSource>(ctsDigIn0 , cam_settings.triggerSource);
-			
-			if(check_input_0) cam_settings.triggerSource.write(ctsDigIn0);
-			else
-			{
-				std::cout << "Warning : the digitial input used is not available." << std::endl;
-			}			
 		}
 	}
 	else //If there is only one camera, continuous is the fastest
@@ -374,6 +385,7 @@ void CamBlueFox::init(const std::string& cam_id)
     params.set_agc(agc_d);//Automatic gain control
     params.set_aec(aec_d);//Automatic exposure control
     params.set_trigger_mode(trigger_d);//Trigger mode
+    params.set_trigger_source(trigger_src_d);//Trigger source
     params.set_exposure_time(exposure_us_d);//Exposure time
     params.set_pixelclock(pixelclock_d);//Pixel clock
     params.set_request_timeout_ms(image_request_timeout_ms_d);//image request timeout

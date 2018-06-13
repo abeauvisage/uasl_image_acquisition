@@ -36,8 +36,11 @@ static const mvIMPACT::acquire::TAutoExposureControl aec_d(aecOff);//Default for
 static const mvIMPACT::acquire::TCameraTriggerMode trigger_d(ctmContinuous);//Default setting for the trigger mode. See
 //https://www.matrix-vision.com/manuals/SDK_CPP/group__DeviceSpecificInterface.html#ga7d880247a3af52241ce96ba703c526a1
 //for the details.
+static const mvIMPACT::acquire::TCameraTriggerSource trigger_src_d(ctsDigIn0);//Default setting for the trigger source. See https://www.matrix-vision.com/manuals/SDK_CPP/group__DeviceSpecificInterface.html#ga18243d80e95a98e9596ed83ed96cdb54
 static const mvIMPACT::acquire::TCameraPixelClock pixelclock_d(cpc40000KHz);//Default pixelclock
 static constexpr int image_request_timeout_ms_d = 2000;//Timeout for an image request in milliseconds. To see the difference with the imageRequestWaitFor timeout, see https://www.matrix-vision.com/manuals/SDK_CPP/ImageAcquisition_section_capture.html#ImageAcquisition_section_capture_timeout
+
+
 
 static constexpr int timemout_waitfor_ms = 500;//Timeout for a waitfor request for the camera
 
@@ -59,6 +62,7 @@ class BlueFoxParameters : public Camera_params
     void set_aec(bool value);
     void set_image_type(int ocv_color_code);
     void set_trigger_mode(mvIMPACT::acquire::TCameraTriggerMode trigger_mode);
+    void set_trigger_source(mvIMPACT::acquire::TCameraTriggerSource trigger_source);
     void set_exposure_time(int exposure_time_us);//The exposure time is in microseconds
     void set_pixelclock(mvIMPACT::acquire::TCameraPixelClock pixelclock);
     void set_request_timeout_ms(int timeout_ms);
