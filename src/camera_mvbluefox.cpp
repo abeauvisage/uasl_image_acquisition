@@ -41,6 +41,35 @@ void BlueFoxParameters::set_image_size(int width, int height)
     }	
 }
 
+void BlueFoxParameters::set_image_roi(int startx, int starty, int width, int height)
+{
+	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
+	//Set the image size, if the value is negative, keep former value, if value is 0, set it to the maximum value if available
+	if(!check_cam() || !lock.is_valid()) return;
+
+    mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
+    if(startx >=0 && startx < width) cam_settings.aoiStartX .write(startx);
+    if(width > 0) cam_settings.aoiWidth.write(width);
+    else if(width == 0)
+    {
+    	if(cam_settings.aoiWidth.hasMaxValue()) cam_settings.aoiWidth.write(cam_settings.aoiWidth.getMaxValue());
+    	else
+    	{
+    		std::cerr << "Warning : attempt to set width to max value, but max value is not available. Width has not been changed." << std::endl;
+    	}
+    }
+    if(starty >=0 && starty < height) cam_settings.aoiStartY.write(starty);
+    if(height > 0) cam_settings.aoiHeight.write(height);
+    else if(height == 0)
+    {
+    	if(cam_settings.aoiHeight.hasMaxValue()) cam_settings.aoiHeight.write(cam_settings.aoiHeight.getMaxValue());
+    	else
+    	{
+    		std::cerr << "Warning : attempt to set height to max value, but max value is not available. Height has not been changed." << std::endl;
+    	}
+    }
+}
+
 void BlueFoxParameters::set_agc(bool value)
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning

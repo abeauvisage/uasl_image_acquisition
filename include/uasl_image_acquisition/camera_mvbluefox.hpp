@@ -58,6 +58,7 @@ class BlueFoxParameters : public Camera_params
 	
 	//Please note that the following set functions stop the acquisition
     void set_image_size(int width, int height);
+    void set_image_roi(int startx, int starty, int width, int height);
     void set_agc(bool value);
     void set_aec(bool value);
     void set_image_type(int ocv_color_code);

@@ -26,11 +26,10 @@ void CamTau2::callbackTauImage(TauRawBitmap& tauRawBitmap, void* caller)
     switch(ptr->params.get_pixel_format()){
         case CV_8U:
         {
-            double m = 10.0/64.0;
+            double m = 30.0/64.0;
             double mean_img = cv::mean(img)[0];
             img = img * m + (127-mean_img* m);
             img.convertTo(img, CV_8U);
-            cv::equalizeHist(img,img);
             break;
         }
         case CV_16U:
