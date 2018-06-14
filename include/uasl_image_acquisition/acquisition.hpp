@@ -39,9 +39,9 @@ class Acquisition
 
 	int start_acq();//Start the acquisition for all cameras
 	int stop_acq();//Stop the acquisition for all cameras
-	
+
 	bool is_running();//Returns true if an acquisition is currently running
-	
+
 	template <CameraType T>
 	int add_camera(const std::string& cam_id = std::string(default_cam_id))//Add a camera (stops the acquisition)
 	{
@@ -52,21 +52,21 @@ class Acquisition
 		std::unique_lock<std::mutex> lock_cam(camera_vec_mtx, std::defer_lock);
 		std::unique_lock<std::mutex> lock_img(images_vec_mtx, std::defer_lock);
 		std::lock(lock_cam, lock_img);
-		
+
 		std::unique_ptr<Camera_seq> cam_ptr = nullptr;
 
 		int ret_value = 0;
-	
+
 		try
 		{
-			cam_ptr = Camera_seq::get_instance<T>(acq_start_package,cam_id);							
+			cam_ptr = Camera_seq::get_instance<T>(acq_start_package,cam_id);
 		}
 		catch(const std::exception& e)
 		{
 			std::cerr << "Exception during a camera addition : " << e.what() << std::endl;
 			ret_value = -1;
 		}
-	
+
 		if(cam_ptr)
 		{
 			camera_vec.push_back(std::move(cam_ptr));
@@ -75,18 +75,25 @@ class Acquisition
 		else
 		{
 			std::cerr << "Error : camera type non recognized. Camera cannot be added." << std::endl;
-			std::cerr << "Please check that the corresponding camera library is correctly link to the executable." << std::endl;	
+			std::cerr << "Please check that the corresponding camera library is correctly link to the executable." << std::endl;
 		}
-	
+
 		return ret_value;
 	}
 
+
 	Camera_params& get_cam_params(size_t idx);//Get the parameters of a specific camera to modify them (stops the acquisition)
 
-	int get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
+	double get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
+
+	speed_t get_trigger_baurate();
+	std::string get_trigger_port_name();
+	void set_trigger_baurate(const speed_t& baurate);
+	void set_trigger_port_name(const std::string& portname);
 
 	private:
 
+	double timestamp;
 	std::vector<std::unique_ptr<Camera_seq>> camera_vec;//Vector holding the cameras
 	std::mutex camera_vec_mtx;//Mutex to protect the camera vector
 
@@ -105,6 +112,9 @@ class Acquisition
     std::mutex images_ready_mtx;//Mutex to protect images_have_been_returned
 
     Trigger_vcp trigger;//External trigger
+    std::string trigger_port_name;
+    speed_t trigger_baudrate;
+    std::mutex trigger_mtx;
 
 	void thread_func();//Acquisition function launched by the acquisition thread
 	void close_cameras();//Close each camera

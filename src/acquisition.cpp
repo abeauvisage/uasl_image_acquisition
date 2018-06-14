@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <typeinfo>
+#include <chrono>
 
 namespace cam {
 
@@ -12,6 +13,8 @@ Acquisition::Acquisition()
 				: should_run(false)
 				, acq_start_package(*this)
 				, images_have_been_returned(true)
+				, trigger_port_name(port_name_d)
+				, trigger_baudrate(baudrate_d)
 {}
 
 Acquisition::~Acquisition()
@@ -88,7 +91,7 @@ Camera_params& Acquisition::get_cam_params(size_t idx)
 	return camera_vec[idx]->get_params();
 }
 
-int Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
+double Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 {
 	std::unique_lock<std::mutex> mlock(images_ready_mtx);//Lock the images vector
 	bool success = !images_have_been_returned? true : images_have_changed.wait_for(mlock, std::chrono::milliseconds(timeout_ms), [this]{return !images_have_been_returned;});
@@ -102,7 +105,7 @@ int Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 	}
 
 	images_have_been_returned = true;
-	return 0;
+	return timestamp;
 }
 
 //Private functions:
@@ -154,8 +157,10 @@ void Acquisition::thread_func()
 			continue;
 		}
 
+
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex for all the duration of the processing
 
+        timestamp =  std::chrono::steady_clock::now().time_since_epoch().count();
 		const size_t cam_number = camera_vec.size();
 
 		bool acquisition_ok = true; //If the acquisition is valid
@@ -204,5 +209,38 @@ void Acquisition::close_cameras()
 	}
 
 }
+
+std::string Acquisition::get_trigger_port_name(){
+
+    //Lock the trigger mutex
+	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	return trigger_port_name;
+}
+
+speed_t Acquisition::get_trigger_baurate(){
+
+    //Lock the trigger mutex
+	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	return trigger_baudrate;
+}
+
+void Acquisition::set_trigger_baurate(const speed_t& baudrate_){
+
+    stop_acq();
+
+	//Lock the trigger mutex
+	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	trigger_baudrate = baudrate_;
+}
+
+void Acquisition::set_trigger_port_name(const std::string& portname){
+
+    stop_acq();
+
+	//Lock the trigger mutex
+	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	trigger_port_name = portname;
+}
+
 } //namespace cam
 

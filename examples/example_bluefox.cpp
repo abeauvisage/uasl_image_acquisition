@@ -5,7 +5,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #elif CV_MAJOR_VERSION == 3
 #include <opencv2/highgui.hpp>
-#endif 
+#endif
 
 #include "acquisition.hpp" //The main class
 #include "camera_mvbluefox.hpp" //You need the header corresponding to the specific camera you are using
@@ -21,32 +21,32 @@ int main()
 
     //Initialise the signal handling (always initialize this class first)
     cam::SigHandler sig_handle;
-    
+
     //The acquisition class manages all the cameras
 	cam::Acquisition acq;
 
     //Initialise one camera
     acq.add_camera<cam::bluefox>("29900221");//You can then add a second, third, etc, by calling the function add_camera again
-    
+
     std::vector<cv::Mat> img_vec;//Vector to store the images
-    
+
     //You can modify options such as the size of the image, the type, etc ...
     dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_type(CV_8UC3);//Tell the first camera to record in RGB
 	dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).set_image_size(720,480);//Modify the image size in first camera
-    
-    
+
+
     //Start the acquisition
     acq.start_acq();
-		
 
-	//The sighandle has no direct relevance to the camera itself, 
+
+	//The sighandle has no direct relevance to the camera itself,
 	//but is necessary to allow the program to stop : at each iteration, we check if an interruption signal
 	//was received.
 	for(;sig_handle.check_term_sig();)
-	{			
+	{
 		//Get the pictures
-		int ret_acq = acq.get_images(img_vec);
-		if(ret_acq == 0)
+		double ret_acq = acq.get_images(img_vec);
+		if(ret_acq > 0)
 		{
 			//If success, img_vec is now filled with the returned images.
 			for(unsigned i = 0;i<img_vec.size();++i)
@@ -54,7 +54,7 @@ int main()
 				//Do what we want with img_vec[i], here for instance, show it
 				cv::imshow("Image " + std::to_string(i), img_vec[i]);//Show the image
 			}
-			cv::waitKey(1);//Update the windows so that the images appear 	
+			cv::waitKey(1);//Update the windows so that the images appear
 		}
 		else
 		{

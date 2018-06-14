@@ -43,8 +43,8 @@ int main()
 	while(sig_handle.check_term_sig() && acq.is_running())
 	{
 		//Get the pictures
-		int ret_acq = acq.get_images(img_vec);
-		if(ret_acq == 0)
+		double ret_acq = acq.get_images(img_vec);
+		if(ret_acq > 0)
 		{
 			//If success, img_vec is now filled with the returned images.
 			for(unsigned i = 0;i<img_vec.size();++i)
