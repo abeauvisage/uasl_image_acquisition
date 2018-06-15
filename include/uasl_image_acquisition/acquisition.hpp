@@ -34,7 +34,7 @@ static constexpr char default_cam_id[] = "";//Default id value for the camera
 class Acquisition
 {
 	public:
-	Acquisition(bool reset_time_origin=false);
+	Acquisition(const clock_type::time_point& time_origin = clock_type::time_point());
 	virtual ~Acquisition();
 
 	int start_acq();//Start the acquisition for all cameras
@@ -115,7 +115,7 @@ class Acquisition
     speed_t trigger_baudrate;
     std::mutex trigger_mtx;
 
-    std::atomic<clock_type::time_point> origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be reset to current time with reset_time_origin().
+    clock_type::time_point origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.
     std::atomic<clock_type::time_point> current_tp; // time point of the latest trigger, will be converted into an image timestamp by get_images only if all images have been acquired.
 
 	void thread_func();//Acquisition function launched by the acquisition thread

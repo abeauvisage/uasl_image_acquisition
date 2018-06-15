@@ -9,14 +9,14 @@ namespace cam {
 
 //Public functions :
 
-Acquisition::Acquisition(bool reset_time_origin)
+Acquisition::Acquisition(const clock_type::time_point& time_origin)
 				: should_run(false)
 				, acq_start_package(*this)
 				, images_have_been_returned(true)
 				, trigger_port_name(port_name_d)
 				, trigger_baudrate(baudrate_d)
-				, origin_tp(reset_time_origin?clock_type::now():clock_type::time_point())
-				, current_tp(clock_type::now())
+				, origin_tp(time_origin)
+				, current_tp(clock_type::time_point())
 {}
 
 Acquisition::~Acquisition()
@@ -108,7 +108,7 @@ int64_t Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 
 	images_have_been_returned = true;
 
-	return std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(current_tp.load()-origin_tp.load()).count();
+	return std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(current_tp.load()-origin_tp).count();
 }
 
 //Private functions:
