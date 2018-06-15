@@ -10,8 +10,8 @@ namespace cam
 template<>
 std::unique_ptr<Camera_seq> Camera_seq::get_instance<bluefox>(Cond_var_package& package, const std::string& cam_id)
 {
-	return std::unique_ptr<CamBlueFox>(new CamBlueFox(package, cam_id));				
-}  
+	return std::unique_ptr<CamBlueFox>(new CamBlueFox(package, cam_id));
+}
 
 //BlueFoxParameters : Public functions
 void BlueFoxParameters::set_image_size(int width, int height)
@@ -19,7 +19,7 @@ void BlueFoxParameters::set_image_size(int width, int height)
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	//Set the image size, if the value is negative, keep former value, if value is 0, set it to the maximum value if available
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
     if(width > 0) cam_settings.aoiWidth.write(width);
     else if(width == 0)
@@ -38,13 +38,13 @@ void BlueFoxParameters::set_image_size(int width, int height)
     	{
     		std::cerr << "Warning : attempt to set height to max value, but max value is not available. Height has not been changed." << std::endl;
     	}
-    }	
+    }
 }
 
 void BlueFoxParameters::set_image_roi(int startx, int starty, int width, int height)
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
-	//Set the image size, if the value is negative, keep former value, if value is 0, set it to the maximum value if available
+	// Set the image ROI, if the height/width is negative, keep former value, if value is 0, set it to the maximum value if available.
 	if(!check_cam() || !lock.is_valid()) return;
 
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
@@ -74,10 +74,10 @@ void BlueFoxParameters::set_agc(bool value)
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
     mvIMPACT::acquire::TAutoGainControl agc_val = value ? agcOn : agcOff;
-    
+
     if(cam_settings.autoGainControl.isValid()) cam_settings.autoGainControl.write(agc_val);
     else
     {
@@ -89,10 +89,10 @@ void BlueFoxParameters::set_aec(bool value)
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
     mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
     mvIMPACT::acquire::TAutoExposureControl aec_val = value ? aecOn : aecOff;
-    
+
     if(cam_settings.autoExposeControl.isValid()) cam_settings.autoExposeControl.write(aec_val);
     else
     {
@@ -139,11 +139,11 @@ void BlueFoxParameters::set_trigger_mode(mvIMPACT::acquire::TCameraTriggerMode t
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-    
+
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
-	
+
 	bool check_trigger_mode = check_property<mvIMPACT::acquire::TCameraTriggerMode>(trigger_mode, cam_settings.triggerMode);
-	
+
 	if(check_trigger_mode) cam_settings.triggerMode.write(trigger_mode);
 	else
 	{
@@ -155,10 +155,10 @@ void BlueFoxParameters::set_trigger_source(mvIMPACT::acquire::TCameraTriggerSour
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-    
+
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
 	bool check_source = check_property<mvIMPACT::acquire::TCameraTriggerSource>(trigger_source, cam_settings.triggerSource);
-			
+
 	if(check_source) cam_settings.triggerSource.write(trigger_source);
 	else
 	{
@@ -171,7 +171,7 @@ void BlueFoxParameters::set_exposure_time(int exposure_time_us)
 	//The exposure time is in microseconds
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
 	cam_settings.expose_us.write(exposure_time_us);
 }
@@ -180,7 +180,7 @@ void BlueFoxParameters::set_pixelclock(mvIMPACT::acquire::TCameraPixelClock pixe
 {
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
 	if(cam_settings.pixelClock_KHz.isValid())
 	{
@@ -205,9 +205,9 @@ void BlueFoxParameters::set_request_timeout_ms(int timeout_ms)
 	//Timeout for an image request in milliseconds
 	Acquisition_lock lock(package);//If the function modifies the parameters, always call the lock at the very beginning
 	if(!check_cam() || !lock.is_valid()) return;
-	
+
 	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
-	
+
 	cam_settings.imageRequestTimeout_ms.write(timeout_ms);
 }
 
@@ -227,19 +227,19 @@ CamBlueFox::~CamBlueFox()
 
 int CamBlueFox::start_acq(bool only_one_camera)
 {
-	//Start the acquisition 
+	//Start the acquisition
 	//Return 0 if success, else an error code != 0
 	if(!opened)
     {
        return -10;
-    }    
-    
+    }
+
 	//It is the responsability of the caller to check that the camera is not already started
-	
+
 	//Setting the trigger mode
    	mvIMPACT::acquire::CameraSettingsBlueFOX cam_settings(p_dev);
-   	
-   	
+
+
    	//See https://www.matrix-vision.com/manuals/SDK_CPP/group__DeviceSpecificInterface.html#ga7d880247a3af52241ce96ba703c526a1
    	//It seems that for 1 camera, the continuous mode provides higher framerate. In the case of multiple cameras, a trigger based  acquisition is needed for synchronization purpose
    	//Keep in mind that when the trigger is set to OnHighLevel, the triggering will happen as long as the voltage is on high, so this time has to be smaller than exposure + framedelay to prevent multiple acquisition
@@ -248,38 +248,38 @@ int CamBlueFox::start_acq(bool only_one_camera)
 	{
 		//Check if the OnHighLevel is supported by the camera
 		bool mode_available_acq = check_property<mvIMPACT::acquire::TCameraTriggerMode>(ctmOnLowLevel, cam_settings.triggerMode);
-		
+
 		if(mode_available_acq)
 		{
 			cam_settings.triggerMode.write(ctmOnLowLevel);
-			
+
 			//Print the maximal framerate
 			if(cam_settings.expose_us.isValid() && cam_settings.aoiHeight.isValid()) std::cout << "Maximal frame rate for camera (Serial " << p_dev->serial.read() << ") in FPS : " << 1.0/(static_cast<double>(cam_settings.expose_us.read())/1e6 + (static_cast<double>(cam_settings.aoiHeight.read()) * (1650.0 / 40e6)) + (25.0 * (1650.0 / 40e6))) << std::endl;
 		}
 		else
 		{
 				cam_settings.triggerMode.write(ctmContinuous);
-				std::cout << "Warning : camera (Serial " << p_dev->serial.read() << ") does not support external trigger. Defaulting on continuous. Synchronization might be compromised." << std::endl; 
+				std::cout << "Warning : camera (Serial " << p_dev->serial.read() << ") does not support external trigger. Defaulting on continuous. Synchronization might be compromised." << std::endl;
 		}
 	}
 	else //If there is only one camera, continuous is the fastest
 	{
 		cam_settings.triggerMode.write(ctmContinuous);
 	}
-	
-	
+
+
 	int request_number;
 	//print_all_request_state();
     //Fill the request queue
     TDMR_ERROR result = DMR_NO_ERROR;
-    while( ( result = static_cast<TDMR_ERROR>(p_fi->imageRequestSingle(nullptr, &request_number)) ) == DMR_NO_ERROR) 
+    while( ( result = static_cast<TDMR_ERROR>(p_fi->imageRequestSingle(nullptr, &request_number)) ) == DMR_NO_ERROR)
     {}
     if( result != DEV_NO_FREE_REQUEST_AVAILABLE )
     {
          std::cerr << "Unable to fill request queue : " << result  << "(" << ImpactAcquireException::getErrorCodeAsString( result ) << ")" << std::endl;
-    }    
+    }
 	manually_start_acquisition_if_needed();
-    
+
     return 0;
 }
 
@@ -295,7 +295,7 @@ int CamBlueFox::stop_acq()
 
     //Extract and unlock all requests
     empty_request_queue();
-    
+
     return 0;
 }
 
@@ -306,28 +306,29 @@ int CamBlueFox::retrieve_image(cv::Mat& image)
 	//Please keep in mind that the request queue is supposed to be full, except if there are timeouts, which we check first.
 
 	if(!opened) return -10;
-	
+
 	//The trigger is sent before each acquisition, so we discard all the invalid acquisition first (there should be none in usual case, if the trigger does not fire for longer than the timeout, then some incorrect acquisitions can arrive in the result queue : this loop eliminates them)
     int ret = -1;
-	
+
 	//Two cases : either the correct request is in the result queue, or not yet. We check for the size of the result queue + 1 for this reason.
 	//The loop is stopped when:
 	//-we have a correct image (ret is changed to 0)
 	//-there has been no correct image (which implies a timeout on the imageRequestWaitFor), ret is changed to -2
 	const int result_queue_size = p_fi->imageRequestResultQueueElementCount();
 	for(int i = 0; (i < result_queue_size + 1) && (ret == -1); ++i)
-	{    	
+	{
 		int requestNr = p_fi->imageRequestWaitFor(timemout_waitfor_ms);//If there is already something in the queue, the function should return immediately.
-    
+
     	mvIMPACT::acquire::Request * pRequest = nullptr;
     	pRequest = p_fi->isRequestNrValid(requestNr) ? p_fi->getRequest(requestNr) : nullptr;
-    	
+
 		if(pRequest != nullptr)
-		{			
+		{
 			if(pRequest->isOK())
 			{
-				//Export the image into the buffer       
-				mvIMPACT::acquire::ImageBuffer * p_ib = pRequest->getImageBufferDesc().getBuffer();               
+			    std::cout << " [Bluefox] ret img: " << std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(clock_type::now().time_since_epoch()).count() << std::endl;
+				//Export the image into the buffer
+				mvIMPACT::acquire::ImageBuffer * p_ib = pRequest->getImageBufferDesc().getBuffer();
 				export_image(p_ib->iWidth, p_ib->iHeight, p_ib->vpData, params.get_pixel_format(), image);
 				//We have copied the image data a this point
 				ret = 0;
@@ -338,15 +339,15 @@ int CamBlueFox::retrieve_image(cv::Mat& image)
 		else //Note that this cases should only happen on the last index (i = index result_queue_size), by definition, the timeout cannot occur before.
 		{
 			TDMR_ERROR result = DMR_NO_ERROR;
-		    while( ( result = static_cast<TDMR_ERROR>(p_fi->imageRequestSingle()) ) == DMR_NO_ERROR) 
+		    while( ( result = static_cast<TDMR_ERROR>(p_fi->imageRequestSingle()) ) == DMR_NO_ERROR)
 			{}
 			p_fi->imageRequestReset(0,0);
-			
+
 			ret = -2;
 		}
 		p_fi->imageRequestSingle();//Send another image request to keep the queue full
 	}
-    
+
     return ret;
 }
 
@@ -361,29 +362,29 @@ void CamBlueFox::init(const std::string& cam_id)
         std::cerr << "Bluefox : No device detected." <<std::endl;
         return;
     }
-    
-    
+
+
     p_dev = dev_mgr.getDeviceBySerial(cam_id);//Load the camera matching the id
-    
+
     if(!p_dev) p_dev = dev_mgr[0];//If no camera found, load the first one detected
 
-    if(p_dev == nullptr) 
+    if(p_dev == nullptr)
     {
         std::cerr << "Could not open device." << std::endl;
         return;
     }
-    
+
     //Check if manual start/stop is possible.
     /*
     if(check_property<mvIMPACT::acquire::TAcquisitionStartStopBehaviour>(assbUser, p_dev->acquisitionStartStopBehaviour))
     {
-    	p_dev->acquisitionStartStopBehaviour.write( assbUser );	
+    	p_dev->acquisitionStartStopBehaviour.write( assbUser );
     }
     else
     {
     	std::cout << "Warning : manual start/stop is not available." << std::endl;
     }*/
-    
+
     try
     {
         p_dev->open();
@@ -393,7 +394,7 @@ void CamBlueFox::init(const std::string& cam_id)
         std::cerr << "An error occured while opening the device (error code: " << e.getErrorString() << ")" << std::endl;
         return;
     }
-    
+
     try
     {
         p_fi = std::unique_ptr<mvIMPACT::acquire::FunctionInterface>(new mvIMPACT::acquire::FunctionInterface(p_dev));//Replace by make_unique in C++14
@@ -404,7 +405,7 @@ void CamBlueFox::init(const std::string& cam_id)
         p_dev->close();
         return;
     }
-    
+
     //At this stage, the device has been opened successfully
     opened = true;
     //Initialize the settings
@@ -418,20 +419,20 @@ void CamBlueFox::init(const std::string& cam_id)
     params.set_exposure_time(exposure_us_d);//Exposure time
     params.set_pixelclock(pixelclock_d);//Pixel clock
     params.set_request_timeout_ms(image_request_timeout_ms_d);//image request timeout
-    //Settings for the output      
+    //Settings for the output
     params.set_image_type(pixel_format_d);
-    
+
     std::cout << "Camera (Serial " << p_dev->serial.read() << ") has been opened successfully." << std::endl;
     if(!clock_type::is_steady)
     {
         std::cerr << "Warning : non steady clock type, timer might go back in time." << std::endl;
     }
-    
+
 }
 
 void CamBlueFox::empty_request_queue()
 {
-	
+
 	//Empty the request queue of the camera
 	if(!opened) return;
 	//VERSION 1
@@ -443,10 +444,10 @@ void CamBlueFox::empty_request_queue()
         pRequest = p_fi->getRequest(requestNrEmpty);
         pRequest->unlock();
     }*/
-    
+
     //VERSION 2
 	p_fi->imageRequestReset(0,0);
-    
+
 }
 
 void CamBlueFox::manually_start_acquisition_if_needed()
@@ -480,19 +481,19 @@ void CamBlueFox::print_all_request_state()
 {
 	//For debugging purpose
 	if(!opened) return;
-	
+
 	const int request_counter = static_cast<int>(p_fi->requestCount());
-	
+
 
 	for( int i=0; i<request_counter; i++ )
 	{
- 
+
 		mvIMPACT::acquire::Request * request = p_fi->getRequest(i);
-		
+
 		mvIMPACT::acquire::PropertyIRequestState state = request->requestState;
-		
+
 		std::cout << "Request " << i << " is in state : " << state.readS() << std::endl;
-		
+
 	}
 	std::cout << std::endl;
 }

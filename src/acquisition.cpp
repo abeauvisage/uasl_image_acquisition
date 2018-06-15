@@ -9,12 +9,14 @@ namespace cam {
 
 //Public functions :
 
-Acquisition::Acquisition()
+Acquisition::Acquisition(bool reset_time_origin)
 				: should_run(false)
 				, acq_start_package(*this)
 				, images_have_been_returned(true)
 				, trigger_port_name(port_name_d)
 				, trigger_baudrate(baudrate_d)
+				, origin_tp(reset_time_origin?clock_type::now():clock_type::time_point())
+				, current_tp(clock_type::now())
 {}
 
 Acquisition::~Acquisition()
@@ -91,7 +93,7 @@ Camera_params& Acquisition::get_cam_params(size_t idx)
 	return camera_vec[idx]->get_params();
 }
 
-double Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
+int64_t Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 {
 	std::unique_lock<std::mutex> mlock(images_ready_mtx);//Lock the images vector
 	bool success = !images_have_been_returned? true : images_have_changed.wait_for(mlock, std::chrono::milliseconds(timeout_ms), [this]{return !images_have_been_returned;});
@@ -105,7 +107,8 @@ double Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 	}
 
 	images_have_been_returned = true;
-	return timestamp;
+
+	return std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(current_tp.load()-origin_tp.load()).count();
 }
 
 //Private functions:
@@ -160,8 +163,8 @@ void Acquisition::thread_func()
 
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex for all the duration of the processing
 
-        timestamp =  std::chrono::steady_clock::now().time_since_epoch().count();
-		const size_t cam_number = camera_vec.size();
+        current_tp.store(clock_type::now());
+        const size_t cam_number = camera_vec.size();
 
 		bool acquisition_ok = true; //If the acquisition is valid
 

@@ -3,7 +3,7 @@
 
 #include "camera_sequential.hpp"
 #include "cond_var_package.hpp"
-
+#include "util_clock.hpp"
 #include "trigger.hpp"
 
 #include <vector>
@@ -34,7 +34,7 @@ static constexpr char default_cam_id[] = "";//Default id value for the camera
 class Acquisition
 {
 	public:
-	Acquisition();
+	Acquisition(bool reset_time_origin=false);
 	virtual ~Acquisition();
 
 	int start_acq();//Start the acquisition for all cameras
@@ -84,7 +84,7 @@ class Acquisition
 
 	Camera_params& get_cam_params(size_t idx);//Get the parameters of a specific camera to modify them (stops the acquisition)
 
-	double get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
+	int64_t get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
 
 	speed_t get_trigger_baurate();
 	std::string get_trigger_port_name();
@@ -93,8 +93,7 @@ class Acquisition
 
 	private:
 
-	double timestamp;
-	std::vector<std::unique_ptr<Camera_seq>> camera_vec;//Vector holding the cameras
+    std::vector<std::unique_ptr<Camera_seq>> camera_vec;//Vector holding the cameras
 	std::mutex camera_vec_mtx;//Mutex to protect the camera vector
 
 	std::thread acq_thd;//Acquisition thread
@@ -115,6 +114,9 @@ class Acquisition
     std::string trigger_port_name;
     speed_t trigger_baudrate;
     std::mutex trigger_mtx;
+
+    std::atomic<clock_type::time_point> origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be reset to current time with reset_time_origin().
+    std::atomic<clock_type::time_point> current_tp; // time point of the latest trigger, will be converted into an image timestamp by get_images only if all images have been acquired.
 
 	void thread_func();//Acquisition function launched by the acquisition thread
 	void close_cameras();//Close each camera
