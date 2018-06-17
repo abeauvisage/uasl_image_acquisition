@@ -120,9 +120,6 @@ endif(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY )
 
 #Tau2 libraries ----------------------------------------------
 
-#find_library(LIBSERIAL_LIBRARY
-#	NAMES libserial.so.0
-#)
 if(TAU2_DRIVER)
 						
 	add_subdirectory(Third_party/libthermalgrabber)						

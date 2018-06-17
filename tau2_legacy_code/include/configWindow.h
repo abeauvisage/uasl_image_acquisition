@@ -46,9 +46,9 @@ class ConfigWindow
         }
 
         void closeCamera(){m_cam.close();}
-        float setBrightness(unsigned short b){m_cam.send_request(BRIGHTNESS,b,true);}
+        void setBrightness(unsigned short b){m_cam.send_request(BRIGHTNESS,b,true);}
         unsigned short getBrightness(){return m_cam.send_request(BRIGHTNESS,NOARG,false);}
-        float setConstrast(unsigned short c){m_cam.send_request(CONTRAST,c,true);}
+        void setConstrast(unsigned short c){m_cam.send_request(CONTRAST,c,true);}
         void setAGCMode(int mode){
             m_cam.send_request(AGC_TYPE,mode,true);
         }
