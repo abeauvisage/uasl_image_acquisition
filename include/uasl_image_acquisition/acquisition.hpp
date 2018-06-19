@@ -31,6 +31,11 @@ static constexpr int timeout_delay_ms = 5000;//Timeout value in milliseconds for
 
 static constexpr char default_cam_id[] = "";//Default id value for the camera
 
+static const std::string port_name_d = "/dev/ttyTRIGGER";//Default name of the VCP port for the trigger
+#ifdef __unix__
+static constexpr speed_t baudrate_d = B115200;//Default baudrate for the trigger
+#endif
+
 class Acquisition
 {
 	public:
@@ -87,7 +92,7 @@ class Acquisition
 	int64_t get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
 
 	#ifdef __unix__
-	speed_t get_trigger_baurate();
+	speed_t get_trigger_baurate() const;
 	void set_trigger_baurate(const speed_t& baurate);
 	#endif
 	
@@ -113,12 +118,12 @@ class Acquisition
     bool images_have_been_returned;//If the current set of images have been used
     std::mutex images_ready_mtx;//Mutex to protect images_have_been_returned
 
-    Trigger_vcp trigger;//External trigger
-    std::string trigger_port_name;
+	Trigger_vcp trigger;//External trigger
+	std::mutex trigger_port_name_mtx; //Mutex for the trigger_port_name variable
+    std::string trigger_port_name;//Portname to use to launch the trigger
     #ifdef __unix__
-    speed_t trigger_baudrate;
+    std::atomic<speed_t> trigger_baudrate;//Baudrate to use to launch the trigger
     #endif
-    std::mutex trigger_mtx;
 
     clock_type::time_point origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.
     clock_type::time_point current_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.

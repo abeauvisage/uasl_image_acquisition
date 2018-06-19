@@ -133,7 +133,15 @@ void Acquisition::thread_func()
 		//Open the trigger if more than 1 camera is started
 		if(!only_one_camera)
 		{
-			trigger.open_vcp();
+			#ifdef __unix__
+			{//Lock for the port_name, if one day atomic strings exist, feel free to obliterate this horror
+				std::lock_guard<std::mutex> lock_trigger_portname(trigger_port_name_mtx);
+				trigger.open_vcp(trigger_port_name, trigger_baudrate.load());
+			}
+			#else
+			trigger.open_vcp()
+			#endif
+			
 			if(!trigger.is_opened())
 			{
 				std::cerr << "Trigger could not be opened. Aborting acquisition." << std::endl;
@@ -215,37 +223,31 @@ void Acquisition::close_cameras()
 }
 
 #ifdef __unix__
-speed_t Acquisition::get_trigger_baurate(){
+speed_t Acquisition::get_trigger_baurate() const{
 
-    //Lock the trigger mutex
-	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
-	return trigger_baudrate;
+	return trigger_baudrate.load();
 }
 
 void Acquisition::set_trigger_baurate(const speed_t& baudrate_){
 
     stop_acq();
 
-	//Lock the trigger mutex
-	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
-	trigger_baudrate = baudrate_;
+	trigger_baudrate.store(baudrate_);
 }
 #endif
 
 std::string Acquisition::get_trigger_port_name(){
-
-    //Lock the trigger mutex
-	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	
+	std::lock_guard<std::mutex> lock(trigger_port_name_mtx);
 	return trigger_port_name;
 }
 
-void Acquisition::set_trigger_port_name(const std::string& portname){
+void Acquisition::set_trigger_port_name(const std::string& portname_){
 
     stop_acq();
-
-	//Lock the trigger mutex
-	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
-	trigger_port_name = portname;
+	
+	std::lock_guard<std::mutex> lock(trigger_port_name_mtx);
+	trigger_port_name = portname_;
 }
 
 } //namespace cam
