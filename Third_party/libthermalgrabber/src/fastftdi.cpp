@@ -481,13 +481,13 @@ FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
             }
             else
             {
-                std::cout << "Trying to connect ThermalCapture GrabberUSB with USB iSerial: " << iSerialUSB << std::endl;
+//                std::cout << "Trying to connect ThermalCapture GrabberUSB with USB iSerial: " << iSerialUSB << std::endl;
                 //result compare
                 int rc = strcmp(iSerialUSB, (char*)&data[0]);
 
                 if (!rc)
                 {
-                    std::cout << "Success: iSerial found (requested/found) " << iSerialUSB << "/" << &data[0] << std::endl;
+//                    std::cout << "Success: iSerial found (requested/found) " << iSerialUSB << "/" << &data[0] << std::endl;
                     int success = libusb_open(devs[i], &dev->handle); // try to open device
 
                     if (success == 0)
@@ -499,7 +499,7 @@ FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
                 }
                 else
                 {
-                    std::cout << "Skipping: iSerial not found (requested/found) " << iSerialUSB << "/" << &data[0] << std::endl;
+                    std::cerr << "Skipping: iSerial not found (requested/found) " << iSerialUSB << "/" << &data[0] << std::endl;
                 }
             }
         }

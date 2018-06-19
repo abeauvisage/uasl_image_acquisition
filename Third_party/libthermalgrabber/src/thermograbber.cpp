@@ -82,6 +82,7 @@ void ThermoGrabber::stopGrabber()
 
 int ThermoGrabber::static_readCallback(uint8_t *buffer, int length, void *progress, void *userdata)
 {
+
     ThermoGrabber * tg=(ThermoGrabber*) userdata;
     return tg->readCallback(buffer,length,progress);
 }
@@ -194,6 +195,7 @@ int ThermoGrabber::readCallback(uint8_t *buffer, int length, void *)
 
             if(tgP->bytecount>=(tgP->size*2))
             {
+//                std::cout << "[Tau2] static cb " << std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(std::chrono::steady_clock::now().time_since_epoch()).count() << std::endl;
                 tgP->parser_state=0;
                 processVideoData(tgP->framebuffer, tgP->bytecount/2);
                 std::this_thread::sleep_for(std::chrono::microseconds(10000));//usleep(10000);

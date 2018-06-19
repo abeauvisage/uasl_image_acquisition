@@ -18,36 +18,37 @@ bool CameraTau2::open(std::string portname)
 
 unsigned short CameraTau2::send_request(const unsigned char fnumber, const unsigned short argument,const bool set){
 
+    std::lock_guard<std::mutex> lockGuard(m_mutex);
     if(!m_serPort)
         cout << " begin Error port" << endl;
 
-    cout << "request : ";
     int nbytes = build_request(fnumber,argument,set);
-    for(int i=0;i<nbytes;i++)
-        cout << (int) m_request[i] << " ";
+//    cout << "request (" << nbytes << ") : ";
+//    for(int i=0;i<nbytes;i++)
+//        cout << (int) m_request[i] << " ";
     m_serPort.write((char*)&m_request[0],nbytes);
-    cout << endl;
-
+//    cout << endl;
 
     if(!m_serPort)
         cout << " write Error port" << endl;
-//    while(!m_serPort){
+
+//    while(m_serPort){
 //        m_serPort.read(m_response,BUFFER_SIZE);
-    cout << "response: ";
+//    cout << "response: ";
 //    for(int i=0;i<6;i++){
 //        char test;m_serPort >> test;
 //        cout << (int) (unsigned char) test << " ";
 //    }
-    int i=0;
-    while(m_serPort.get(m_response[i]) && i < 6){
-        cout << (int) (unsigned char)m_response[i] << " ";
-        i++;
-    }
+//    int i=0;
+//    while(m_serPort.get(m_response[i]) && i < 9){
+//        cout << "t " << (int) (unsigned char)m_response[i] << " ";
+//        i++;
+//    }
 
-    while(m_serPort.get(m_response[i]) && i < 8+(int)m_response[5]){
-        cout << (int) (unsigned char) m_response[i] << " ";
-        i++;
-    }cout << endl;
+//    while(m_serPort.get(m_response[i]) && i < 8+(int)m_response[5]){
+//        cout << (int) (unsigned char) m_response[i] << " ";
+//        i++;
+//    }cout << endl;
 
     unsigned short result;
     if(m_response[5] > 0)
@@ -56,12 +57,12 @@ unsigned short CameraTau2::send_request(const unsigned char fnumber, const unsig
 //    while(test !=0x6E){
 //        cout << "err" << endl;
 //    }
-//    cout << "test: " << (int)test << endl;
+//    cout << "test: " << (int)m_response[7] << " " <<(int) m_response[8] << endl;
 //    }
 
         if(!m_serPort)
             cout << " read Error port" << endl;
-        cout << "test: " << (int) m_response[0] << " " << (int) m_response[2] << endl;
+//        cout << "test: " << (int) m_response[0] << " " << (int) m_response[2] << endl;
         switch(m_response[1]){
             case 0x03:
                 cerr << "CAM_RANGE_ERROR" << endl;
@@ -80,6 +81,7 @@ unsigned short CameraTau2::send_request(const unsigned char fnumber, const unsig
                 break;
             case 0x09:
                 cerr << "CAM_BYTE_COUNT_ERROR" << endl;
+		break;
             case 0x0A:
                 cerr << "CAM_FEATURE_NOT_ENABLE" << endl;
                 break;
@@ -90,8 +92,6 @@ unsigned short CameraTau2::send_request(const unsigned char fnumber, const unsig
 
     if(!m_serPort)
         cout << " end Error port" << endl;
-    else
-    {}
 
     return result;
 }
@@ -110,7 +110,7 @@ int CameraTau2::build_request(const unsigned char fnumber, const unsigned short 
     unsigned short crc = computeCRC_CCITT(6);
     m_request[6] = (unsigned char)(crc >> 8);
     m_request[7] = (unsigned char)(crc & 0xFF);
-    if(argument == 0xFFFF){
+    if(argument == 0xFFFF && !set){
         crc = computeCRC_CCITT(8);
         m_request[8] = (unsigned char)(crc >> 8);
         m_request[9] = (unsigned char)(crc & 0xFF);

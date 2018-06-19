@@ -1,8 +1,9 @@
-#ifndef UASL_IMAGE_ACQUISITION_CAMERATAU2_H
-#define UASL_IMAGE_ACQUISITION_CAMERATAU2_H
+#ifndef CAMERATAU2_H
+#define CAMERATAU2_H
 
 #include <string>
 #include <iostream>
+#include <mutex>
 
 #include <SerialStream.h>
 #include <SerialPort.h>
@@ -23,6 +24,13 @@
 #define CONTRAST 0x14
 #define BRIGHTNESS 0x15
 #define EXTERNAL_SYNC 0x21
+#define PLATEAU_LEVEL 0x3F
+#define AGC_MIDPOINT 0x55
+#define AGC_FILTER 0x3E
+#define MAX_AGC_GAIN 0x6A
+#define TAIL_SIZE 0x1B
+#define ACE_CORRECT 0x1C
+#define AUTO_DDE 0xE3
 
 /**** Arguments Definition ****/
 
@@ -47,13 +55,14 @@
 #define AGC_TYPE_MANUAL 0x0003
 #define AGC_TYPE_NOT_DEF 0x0004
 #define AGC_TYPE_LINEAR 0x0005
+#define AGC_TYPE_INFOBASED 0x0009
+#define AGC_TYPE_INFOBASEDEQ 0x000A
 #define EXTERNAL_SYNC_DISABLED 0x0000
 #define EXTERNAL_SYNC_SLAVE 0x0001
 #define EXTERNAL_SYNC_MASTER 0x0002
 
 class CameraTau2
 {
-//    enum AGCMode{AGC_PLATEAU,AGC_ONCE_BRIGHT,AGC_AUTO_BRIGHT,AGC_MANUAL,AGC_LINEAR};
     public:
         CameraTau2(const std::string portname=""){
             if(!portname.empty()){
@@ -63,7 +72,6 @@ class CameraTau2
                     std::cerr << portname << " couldn't be opened." << std::endl;
 
                 send_request(DO_FFC,NOARG);
-                send_request(AGC_TYPE,AGC_TYPE_ONCE_BRIGHT,true);
             }
         }
 
@@ -76,9 +84,9 @@ class CameraTau2
 
     private:
 
-//        static CameraTau2 instance;
         LibSerial::SerialStream m_serPort;
         const static int BUFFER_SIZE=50;
+        std::mutex m_mutex;
 
         unsigned char m_request[BUFFER_SIZE];
         char m_response[BUFFER_SIZE];

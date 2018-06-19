@@ -1,0 +1,396 @@
+<interface>
+  <object id="window" class="GtkWindow">
+    <property name="visible">True</property>
+    <property name="title">Tau2 configuration Window</property>
+    <property name="border-width">10</property>
+    <child>
+      <object id="grid" class="GtkGrid">
+        <property name="visible">True</property>
+        <child>
+          <object id="ffcButton" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">Do FFC</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+            <property name="width">10</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelCbBox" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">AGC type: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object id="agcType" class="GtkComboBoxText">
+            <property name="visible">True</property>
+            <items>
+                <item translatable="yes" id="plateau">PLATEAU</item>
+                <item translatable="yes" id="onceBright">ONCE BRIGHT</item>
+                <item translatable="yes" id="autoBright">AUTO BRIGHT</item>
+                <item translatable="yes" id="manual">MANUAL</item>
+                <item translatable="yes" id="linear">LINEAR</item>
+                <item translatable="yes" id="infoBased">INFO BASED</item>
+                <item translatable="yes" id="infoBasedEq">INFO BASED EQ</item>
+            </items>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">1</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelcScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Contrast: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="contrast-adjustment">
+            <property name="value">100</property>
+            <property name="lower">0</property>
+            <property name="upper">255</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="cScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">contrast-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">3</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelbScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Brightness: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="brightness-adjustment">
+            <property name="value">3000</property>
+            <property name="lower">2000</property>
+            <property name="upper">5000</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="bScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">brightness-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">4</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelddeScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">DDE: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="dde-adjustment">
+            <property name="value">0</property>
+            <property name="lower">-20</property>
+            <property name="upper">100</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="ddeScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">dde-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">5</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelaceScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">ACE: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="ace-adjustment">
+            <property name="value">0</property>
+            <property name="lower">-8</property>
+            <property name="upper">8</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="aceScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">ace-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">6</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelssoScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">SSO: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="sso-adjustment">
+            <property name="value">15</property>
+            <property name="lower">0</property>
+            <property name="upper">100</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="ssoScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">sso-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">7</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelPlateauScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Plateau value: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="plateau-adjustment">
+            <property name="value">240</property>
+            <property name="lower">0</property>
+            <property name="upper">4000</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="plateauScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">plateau-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">8</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelMaxGainScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Max Gain: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">9</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="maxgain-adjustment">
+            <property name="value">8</property>
+            <property name="lower">0</property>
+            <property name="upper">255</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="maxgainScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">maxgain-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">9</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelITTScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">ITT mean: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="itt-adjustment">
+            <property name="value">127</property>
+            <property name="lower">0</property>
+            <property name="upper">255</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="ittScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">itt-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">10</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labelagcFScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">AGC Filter: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">11</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="agcf-adjustment">
+            <property name="value">64</property>
+            <property name="lower">0</property>
+            <property name="upper">255</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="agcfScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">agcf-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">11</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="labeltailScale" class="GtkLabel">
+            <property name="visible">True</property>
+            <property name="label">Tail rejection: </property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAdjustment" id="tail-adjustment">
+            <property name="value">2</property>
+            <property name="lower">0</property>
+            <property name="upper">20</property>
+            <property name="step-increment">1</property>
+            <property name="page-increment">5</property>
+            <property name="page-size">0</property>
+          </object>
+          <object id="tailScale" class="GtkScale">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <property name="draw-value">TRUE</property>
+            <property name="adjustment">tail-adjustment</property>
+            <property name="digits">0</property>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">12</property>
+            <property name="width">8</property>
+          </packing>
+        </child>
+        <child>
+          <object id="save" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">save</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">13</property>
+            <property name="width">4</property>
+          </packing>
+        </child>
+        <child>
+        <object id="reset" class="GtkButton">
+            <property name="visible">True</property>
+            <property name="label">reset</property>
+          </object>
+          <packing>
+            <property name="left-attach">4</property>
+            <property name="top-attach">13</property>
+            <property name="width">4</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+      </packing>
+    </child>
+  </object>
+</interface>

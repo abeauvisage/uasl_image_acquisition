@@ -18,6 +18,7 @@ find_package(Threads REQUIRED)
 
 option(BUILD_ROS_NODE "Build ROS node" ON)
 option(TAU2_DRIVER "Build libthermalgrabber" ON)
+option(TAU2_LEGACY_CODE "Build legacy code for sensoray grabber" OFF)
 
 #RPATH parameters
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -135,6 +136,10 @@ if(TAU2_DRIVER)
 	add_executable(example_tau2 examples/example_tau2.cpp)
 	target_link_libraries(example_tau2 acq_seq tau2_acq)
 endif(TAU2_DRIVER)
+
+if(TAU2_LEGACY_CODE)
+	add_subdirectory(Third_party/tau2_legacy_code)
+endif(TAU2_LEGACY_CODE)
 
 #All libs ----------------------------------------------
 if(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)

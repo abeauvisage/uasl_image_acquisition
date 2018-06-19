@@ -505,25 +505,25 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
     {
 
     case 0x00:
-        std::cout << "No op" << std::endl;
+        //std::cout << "No op" << std::endl;
         if (!flirComOk)
             flirComOk = true;
         break;
 
     case 0x01:
-        std::cout << "Set defaults" << std::endl;
+        //std::cout << "Set defaults" << std::endl;
         break;
 
     case 0x02:
-        std::cout << "Reset" << std::endl;
+        //std::cout << "Reset" << std::endl;
         break;
 
     case 0x03:
-        std::cout << "Factory defaults" << std::endl;
+        //std::cout << "Factory defaults" << std::endl;
         break;
 
     case 0x04:
-        std::cout << "Serial numbers" << std::endl;
+        //std::cout << "Serial numbers" << std::endl;
         //Bytes 0-3: Camera serial number
         //Bytes 4-7: Sensor serial number
 
@@ -537,12 +537,12 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
         mSensorSerial |= buffer[14] << 8;
         mSensorSerial |= buffer[15];
 
-        std::cout << "Camera: " << mCameraSerial << std::endl;
-        std::cout << "Sensor: " << mSensorSerial << std::endl;
+        //std::cout << "Camera: " << mCameraSerial << std::endl;
+        //std::cout << "Sensor: " << mSensorSerial << std::endl;
         break;
 
     case 0x05:
-        std::cout << "Revisions" << std::endl;
+        //std::cout << "Revisions" << std::endl;
         //Bytes 0-1: SW major version
         //Bytes 2-3: SW minor version
         //Bytes 4-5: FW major version
@@ -560,28 +560,24 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
         mFWMinorVersion = buffer[14];
         mFWMinorVersion |= buffer[15];
 
-        std::cout << "Software: " << mSWMajorVersion << "." << mSWMinorVersion << std::endl;
-        std::cout << "Firmware: " << mFWMajorVersion << "." << mFWMinorVersion << std::endl;
+        //std::cout << "Software: " << mSWMajorVersion << "." << mSWMinorVersion << std::endl;
+        //std::cout << "Firmware: " << mFWMajorVersion << "." << mFWMinorVersion << std::endl;
         break;
 
-    case 0x0A:
-        std::cout << "Gain Mode" << std::endl;
-        if (buffer[9] == 0x00)
-            std::cout << "Automatic" << std::endl;
-        else if (buffer[9] == 0x01)
-            std::cout << "Low gain" << std::endl;
-        else if (buffer[9] == 0x02)
-            std::cout << "High gain" << std::endl;
-        else if (buffer[9] == 0x03)
-            std::cout << "Manual" << std::endl;
-        break;
-
-    case 0x0C:
-        std::cout << "FFC" << std::endl;
-        break;
+//    case 0x0A:
+//        //std::cout << "Gain Mode" << std::endl;
+//        if (buffer[9] == 0x00)
+//            //std::cout << "Automatic" << std::endl;
+//        else if (buffer[9] == 0x01)
+//            //std::cout << "Low gain" << std::endl;
+//        else if (buffer[9] == 0x02)
+//            //std::cout << "High gain" << std::endl;
+//        else if (buffer[9] == 0x03)
+//            //std::cout << "Manual" << std::endl;
+//        break;
 
     case 0x12:
-        std::cout << "Digital Output" << std::endl;
+        //std::cout << "Digital Output" << std::endl;
 
         if (buffer[8] == 0x00)
         {
@@ -592,100 +588,100 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
                 if (!mDigitalOutputEnabledChecked)
                 {
                     mDigitalOutputEnabledChecked = true;
-                    std::cout << "Status is ";
-                    if (buffer[9] == 0x02)
-                        std::cout << "disabled" << std::endl;
-                    else if (buffer[9] == 0x00)
+                    //std::cout << "Status is ";
+//                    if (buffer[9] == 0x02)
+                        //std::cout << "disabled" << std::endl;
+                    if (buffer[9] == 0x00)
                     {
                         mDigitalOutputEnabledStatus = true;
-                        std::cout << "enabled" << std::endl;
+                        //std::cout << "enabled" << std::endl;
                     }
-                    else
-                        std::cout << "unknown" << std::endl;
+//                    else
+                        //std::cout << "unknown" << std::endl;
                 }
                 else
                 {
-                    std::cout << "Set to ";
+                    //std::cout << "Set to ";
                     if (buffer[9] == 0x02)
                     {
-                        std::cout << "disabled" << std::endl;
+                        //std::cout << "disabled" << std::endl;
                     }
                     else if (buffer[9] == 0x00)
                     {
                         mDigitalOutputEnabledStatus = true;
-                        std::cout << "enabled" << std::endl;
+                        //std::cout << "enabled" << std::endl;
                     }
                     else
                     {
-                        std::cout << "unknown" << std::endl;
+                        //std::cout << "unknown" << std::endl;
                     }
                 }
             }
             else if (mPresentRequestDigitalOutput == REQ_DIGITAL_OUTPUT_XP_MODE)
             {
                 mDigitalOutputXPMode14bitChecked = true;
-                std::cout << "Status is ";
-                if (buffer[9]==0x00)
-                    std::cout << "XP Mode disabled" << std::endl;
-                else if (buffer[9] == 0x01)
-                    std::cout << "XP Mode BT656" << std::endl;
-                else if (buffer[9] == 0x02)
+                //std::cout << "Status is ";
+//                if (buffer[9]==0x00)
+//                    //std::cout << "XP Mode disabled" << std::endl;
+//                else if (buffer[9] == 0x01)
+//                    //std::cout << "XP Mode BT656" << std::endl;
+                if (buffer[9] == 0x02)
                 {
                     mDigitalOutputXPMode14bitStatus = true;
-                    std::cout << "XP Mode CMOS 14-bit w/ 1 discrete" << std::endl;
+                    //std::cout << "XP Mode CMOS 14-bit w/ 1 discrete" << std::endl;
                 }
-                else if (buffer[9] == 0x03)
-                    std::cout << "XP Mode CMOS 8-bit w/ 8 discrete" << std::endl;
-                else if (buffer[9] == 0x04)
-                    std::cout << "XP Mode CMOS 16-bit" << std::endl;
-                else
-                    std::cout << "XP Mode unknown" << std::endl;
+//                else if (buffer[9] == 0x03)
+//                    //std::cout << "XP Mode CMOS 8-bit w/ 8 discrete" << std::endl;
+//                else if (buffer[9] == 0x04)
+//                    //std::cout << "XP Mode CMOS 16-bit" << std::endl;
+//                else
+                    //std::cout << "XP Mode unknown" << std::endl;
             }
             else if (mPresentRequestDigitalOutput == REQ_DIGITAL_OUTPUT_CMOS_MODE)
             {
                 mDigitalOutputCMOSBitDepth14bitChecked = true;
-                std::cout << "Status is ";
+                //std::cout << "Status is ";
                 if (buffer[9] == 0x00)
                 {
                     mDigitalOutputCMOSBitDepth14bitStatus = true;
-                    std::cout << "CMOS mode 14bit" << std::endl;
+                    //std::cout << "CMOS mode 14bit" << std::endl;
                 }
-                else if (buffer[9] == 0x01)
-                    std::cout << "8bit post-AGC/pre-colorize" << std::endl;
-                else if (buffer[9] == 0x02)
-                    std::cout << "8bit Bayer encoded" << std::endl;
-                else if (buffer[9] == 0x03)
-                    std::cout << "16bit YCbCr" << std::endl;
-                else if (buffer[9] == 0x04)
-                    std::cout << "8bit 2x Clock YCbCr" << std::endl;
-                else
-                    std::cout << "CMOS mode Bit Depth unknown" << std::endl;
+//                else if (buffer[9] == 0x01)
+//                    //std::cout << "8bit post-AGC/pre-colorize" << std::endl;
+//                else if (buffer[9] == 0x02)
+//                    //std::cout << "8bit Bayer encoded" << std::endl;
+//                else if (buffer[9] == 0x03)
+//                    //std::cout << "16bit YCbCr" << std::endl;
+//                else if (buffer[9] == 0x04)
+//                    //std::cout << "8bit 2x Clock YCbCr" << std::endl;
+//                else
+//                    //std::cout << "CMOS mode Bit Depth unknown" << std::endl;
             }
         }
-        else if (buffer[8] == 0x03)
-        {
-            std::cout << "Set to ";
-            if (buffer[9]==0x00)
-                std::cout << "XP Mode disabled" << std::endl;
-            else if (buffer[9] == 0x02)
-                std::cout << "XP Mode CMOS 14-bit w/ 1 discrete" << std::endl;
-            else
-                std::cout << "XP Mode unknown" << std::endl;
-        }
-        else if (buffer[8] == 0x06)
-        {
-            std::cout << "Set to ";
-            if (buffer[9] == 0x00)
-                std::cout << "CMOS mode Bit Depth 14bit pre-AGC" << std::endl;
-            else
-                std::cout << "CMOS mode Bit Depth unknown" << std::endl;
-
-        }
+//        else if (buffer[8] == 0x03)
+//        {
+//            //std::cout << "Set to ";
+//            if (buffer[9]==0x00)
+//                //std::cout << "XP Mode disabled" << std::endl;
+//            else if (buffer[9] == 0x02)
+//                //std::cout << "XP Mode CMOS 14-bit w/ 1 discrete" << std::endl;
+//            else
+//                //std::cout << "XP Mode unknown" << std::endl;
+//        }
+//        else if (buffer[8] == 0x06)
+//        {
+//            //std::cout << "Set to ";
+//            if (buffer[9] == 0x00)
+//                //std::cout << "CMOS mode Bit Depth 14bit pre-AGC" << std::endl;
+//            else
+//                //std::cout << "CMOS mode Bit Depth unknown" << std::endl;
+//
+//        }
 
         break;
 
     case 0x66:
-        std::cout << "Camera part number" << std::endl << std::hex;
+        //std::cout << "Camera part number" << std::endl << std::hex;
         //Bytes 0-31: Part number (ASCII)
 
         for (int i=0; i<32; i++)
@@ -693,9 +689,9 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
             mCameraPartNumber[i] = buffer[i+8];
             if (buffer[i+8] == 0) // end of ascii string
                 break;
-            std::cout << (char)buffer[i+8];
+            //std::cout << (char)buffer[i+8];
         }
-        std::cout << std::dec << std::endl;
+        //std::cout << std::dec << std::endl;
 
         if (!mVideoProcessingEnabled)
         {
@@ -756,14 +752,14 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
 
         if (mPresentRequestTLin == REQ_GET_TLIN_ENABLED)
         {
-            std::cout << "TLinear enable status" << std::endl;
+            //std::cout << "TLinear enable status" << std::endl;
 
             //Bytes 0-1: TLin Enable Status
             mTLinearEnableStatus = buffer[8] << 8;
             mTLinearEnableStatus |= buffer[9];
             mTLinearEnabledStatus = mTLinearEnableStatus;
 
-            std::cout << "TLinear status is " << mTLinearEnableStatus << std::endl;
+            //std::cout << "TLinear status is " << mTLinearEnableStatus << std::endl;
 
             mTLinearEnabledChecked = true;
 
@@ -773,24 +769,24 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
             else
                 mTLinearEnabledStatus = true;
         }
-        else if (mPresentRequestTLin == REQ_GET_TLIN_MODE)
-        {
-            std::cout << "TLinear mode status" << std::endl;
-
-            if (buffer[9] == 0x00)
-                std::cout << "TLinear is in low resolution mode" << std::endl;
-
-            else if (buffer[9] == 0x01)
-                std::cout << "TLinear is in high resolution mode" << std::endl;
-        }
-        else if (mPresentRequestTLin == REQ_SET_TLIN_ENABLED)
-        {
-            std::cout << "TLinear set" << std::endl;
-        }
-        else if (mPresentRequestTLin == REQ_SET_TLIN_MODE)
-        {
-            std::cout << "TLinear mode set" << std::endl;
-        }
+//        else if (mPresentRequestTLin == REQ_GET_TLIN_MODE)
+//        {
+//            //std::cout << "TLinear mode status" << std::endl;
+//
+//            if (buffer[9] == 0x00)
+//                //std::cout << "TLinear is in low resolution mode" << std::endl;
+//
+//            else if (buffer[9] == 0x01)
+//                //std::cout << "TLinear is in high resolution mode" << std::endl;
+//        }
+//        else if (mPresentRequestTLin == REQ_SET_TLIN_ENABLED)
+//        {
+//            //std::cout << "TLinear set" << std::endl;
+//        }
+//        else if (mPresentRequestTLin == REQ_SET_TLIN_MODE)
+//        {
+//            //std::cout << "TLinear mode set" << std::endl;
+//        }
 
         break;
 
@@ -798,7 +794,7 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
         std::cout << "unknown/not implemeted yet: " << (int)(char)buffer[3] << std::endl;
 
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
 }
 
 

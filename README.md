@@ -4,12 +4,13 @@ Program for acquiring images from one or several bluefox/flir cameras.
 ## Installation
 
 ### Dependencies :
-- [OpenCV](http://opencv.org/downloads.html) >= 12.4.8  (Image processing library)
-- [Sensoray 2253 driver](http://www.sensoray.com/products/2253.htm) >= 1.2.14 (for flir cameras) 
-- [mvBlueFOX SDK](https://www.matrix-vision.com/USB2.0-industrial-camera-mvbluefox.html) >= 2.17.2 (for MV cameras)
+- [OpenCV] (http://opencv.org/downloads.html) >= 12.4.8  (Image processing library)
 
 ### Optional dependencies :
-- ROS (tested with indigo and above). The program can be placed directly into your catkin workspace, it will by default compile with ROS compatibility, so you do not need to add the BUILD_ROS_NODE (see below) flag to work with catkin.
+- [Sensoray 2253 driver](http://www.sensoray.com/products/2253.htm) >= 1.2.14 (for tau2 legacy code) 
+- [mvBlueFOX SDK](https://www.matrix-vision.com/USB2.0-industrial-camera-mvbluefox.html) >= 2.17.2 (for MV cameras)
+- [ROS] (tested with indigo and above). The program can be placed directly into your catkin workspace, it will by default compile with ROS compatibility, so you do not need to add the BUILD_ROS_NODE (see below) flag to work with catkin.
+- [GTK+ 3] for configuring tau2 cameras with sensoray frame grabbers.
 
 ### CMake flags :
 Mandatory argument: 
@@ -17,6 +18,8 @@ Mandatory argument:
 
 Optional argument :
 - BUILD_ROS_NODE : if true, the ROS node will be built (thus you need ROS). The default is true.
+- TAU2_DRIVER : compile libthermallibrary to use tau2 camera with TEAX frame grabbers.
+- TAU2_LEGACY_CODE : compile multispectral acquisition with legacy code for tau2 sensoray frame grabbers .
 
 ### Example of installation workflow :
 - install every dependencies (refer to the links above)
