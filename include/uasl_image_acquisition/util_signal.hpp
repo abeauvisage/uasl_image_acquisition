@@ -3,6 +3,9 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <atomic>
+
+
 #else
 #include <signal.h>
 #include <sys/signalfd.h>
@@ -28,38 +31,35 @@ namespace cam
 class SigHandler
 {
 	#ifdef _WIN32
+	//This is complicated, see https://stackoverflow.com/questions/31104526/c-setconsolectrlhandler-passing-data-for-cleanup-without-globals
 	private:
-	BOOL ctrl_handler(DWORD fdw_ctrl_type)
+	static BOOL ctrl_handler(DWORD fdw_ctrl_type)
 	{
 		switch(fdw_ctrl_type)
 		{
 			case CTRL_C_EVENT:
 			case CTRL_CLOSE_EVENT:
-				signal_catched = true;
+				signal_catched.store(true);
 				return TRUE;//We don't call the other handlers (i.e. including the terminating process
 			case CTRL_BREAK_EVENT:
 			case CTRL_LOGOFF_EVENT:
 			case CTRL_SHUTDOWN_EVENT:
-				signal_catched = true;
+				signal_catched.store(true);
 				return FALSE;
 			default:
 				return FALSE;
 		}	
 	}
 	
-	bool signal_catched;
+	static std::atomic<bool> signal_catched(false);
 	#endif
 	
     public:
     SigHandler()
-    	: valid(true)
-    	#ifdef _WIN32
-    	, signal_catched(false)
-    	#endif
-        
+    	: valid(true)        
     {
     	#ifdef _WIN32
-    	if (!SetConsoleCtrlHandler(this->ctrl_handler, TRUE)) 
+    	if (!SetConsoleCtrlHandler(ctrl_handler, TRUE)) 
     	{
         	valid = false;
     	}
