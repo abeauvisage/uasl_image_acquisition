@@ -29,24 +29,24 @@ if (WIN32)
         link_libraries (
             ftd2xx
         )
-
+  
     elseif (NOT USE_FTDI_LIB)
 
-        MESSAGE(STATUS "thermalgrabber : Using libusb")
+	   MESSAGE(STATUS "thermalgrabber : Using libusb")
 
-        include_directories (
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/inc
-        )
+	   include_directories (
+		   ${CMAKE_CURRENT_SOURCE_DIR}/src/inc
+	   )
 
-        link_directories (
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/MingGW32/dll
-        )
+	   find_library(LIB_USB_1 REQUIRED
+		            NAMES usb-1.0)
+		            
+		if(NOT LIB_USB_1)
+		 message(FATAL_ERROR "libusb-1.0 not found")
+		endif(NOT LIB_USB_1)
+	
+	endif(USE_FTDI_LIB)
 
-        link_libraries (
-            libusb-1.0
-        )
-
-    endif(USE_FTDI_LIB)
 
 elseif (NOT WIN32)
 
