@@ -86,9 +86,12 @@ class Acquisition
 
 	int64_t get_images(std::vector<cv::Mat>& img_vec);//Get an image from each camera
 
+	#ifdef __unix__
 	speed_t get_trigger_baurate();
-	std::string get_trigger_port_name();
 	void set_trigger_baurate(const speed_t& baurate);
+	#endif
+	
+	std::string get_trigger_port_name();
 	void set_trigger_port_name(const std::string& portname);
 
 	private:
@@ -112,7 +115,9 @@ class Acquisition
 
     Trigger_vcp trigger;//External trigger
     std::string trigger_port_name;
+    #ifdef __unix__
     speed_t trigger_baudrate;
+    #endif
     std::mutex trigger_mtx;
 
     clock_type::time_point origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.

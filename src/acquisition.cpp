@@ -214,13 +214,7 @@ void Acquisition::close_cameras()
 
 }
 
-std::string Acquisition::get_trigger_port_name(){
-
-    //Lock the trigger mutex
-	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
-	return trigger_port_name;
-}
-
+#ifdef __unix__
 speed_t Acquisition::get_trigger_baurate(){
 
     //Lock the trigger mutex
@@ -235,6 +229,14 @@ void Acquisition::set_trigger_baurate(const speed_t& baudrate_){
 	//Lock the trigger mutex
 	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
 	trigger_baudrate = baudrate_;
+}
+#endif
+
+std::string Acquisition::get_trigger_port_name(){
+
+    //Lock the trigger mutex
+	std::lock_guard<std::mutex> lock_trig(trigger_mtx);
+	return trigger_port_name;
 }
 
 void Acquisition::set_trigger_port_name(const std::string& portname){

@@ -5,9 +5,10 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifdef __unix__
 #include <fcntl.h>
-
 #include <unistd.h>
+#endif
 
 #include <chrono>
 #include <thread>
@@ -16,20 +17,30 @@ namespace cam {
 
 //Good tuto on serial : http://www.cmrr.umn.edu/~strupp/serial.html#1
 
+#ifdef __unix__
 Trigger_vcp::Trigger_vcp(const std::string& port_name_, const speed_t& baudrate_) :
 						opened(false),
 						port_name(port_name_),
                         baudrate(baudrate_)
 {}
+#else
+Trigger_vcp::Trigger_vcp()
+			: opened(false)
+{}
+#endif
 
 Trigger_vcp::~Trigger_vcp()
 {
+	#ifdef __unix__
 	if(opened) close(fd);
+	#endif
 }
 
 void Trigger_vcp::open_vcp()
 {
 	if(opened) return;
+	
+	#ifdef __unix__
 	fd = open(port_name.c_str(), O_RDWR | O_NOCTTY);
     if (fd < 0)
     {
@@ -42,10 +53,14 @@ void Trigger_vcp::open_vcp()
 //    std::this_thread::sleep_for(std::chrono::milliseconds(delay_start_ms));
 
     opened = true;
+    #else
+    printf("Error opening the trigger : TRIGGER NOT DEFINED IN WINDOWS");
+    #endif	
 }
 
 int Trigger_vcp::set_interface_attribs(int fd, int speed)
 {
+	#ifdef __unix__
     struct termios tty;
 
 //    if (tcgetattr(fd, &tty) < 0)//Fetch the options from the device
@@ -86,11 +101,16 @@ int Trigger_vcp::set_interface_attribs(int fd, int speed)
         return -1;
     }
     return 0;
+    #else
+    return -1;
+    #endif
 }
 
 bool Trigger_vcp::send_trigger()
 {
 	if(!opened) return false;
+	
+	#ifdef __unix__
     int bytes_written;
 	//Send the trigger signal, returns true if success, else false.
 
@@ -113,6 +133,9 @@ bool Trigger_vcp::send_trigger()
 //    }
 
     return true;
+    #else
+    return false;
+    #endif
 }
 
 } //end of cam namespace
