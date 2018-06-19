@@ -116,7 +116,8 @@ class Acquisition
     std::mutex trigger_mtx;
 
     clock_type::time_point origin_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.
-    std::atomic<int64_t> timestamp; // time since origin_tp, expressed in microseconds
+    clock_type::time_point current_tp; // used as origin for image timestamps. Initialized with the clock epoch, can be specified in the constructor.
+    int64_t timestamp; // time since origin_tp, expressed in microseconds. This is updated after each successful acquisition. Note this variable is protected by the mutex images_ready_mtx
 
 	void thread_func();//Acquisition function launched by the acquisition thread
 	void close_cameras();//Close each camera

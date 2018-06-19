@@ -16,6 +16,7 @@ Acquisition::Acquisition(const clock_type::time_point& time_origin)
 				, trigger_port_name(port_name_d)
 				, trigger_baudrate(baudrate_d)
 				, origin_tp(time_origin)
+                , current_tp(origin_tp)
 				, timestamp(0)
 {}
 
@@ -108,7 +109,7 @@ int64_t Acquisition::get_images(std::vector<cv::Mat>& img_vec_out)
 
 	images_have_been_returned = true;
 
-	return timestamp.load();
+	return timestamp;
 }
 
 //Private functions:
@@ -159,7 +160,7 @@ void Acquisition::thread_func()
 			std::cerr << "Error during triggering." << std::endl;
 			continue;
 		}
-		timestamp.store(std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(clock_type::now()-origin_tp).count());
+        current_tp = clock_type::now();
 
 		std::lock_guard<std::mutex> lock_cam(camera_vec_mtx);//Lock the camera vector mutex for all the duration of the processing
 
@@ -182,6 +183,7 @@ void Acquisition::thread_func()
 		if(acquisition_ok)
 		{
 			std::lock_guard<std::mutex> lock_ready(images_ready_mtx);
+		    timestamp = std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(current_tp-origin_tp).count();
 			images_have_been_returned = false;
 		}
 
