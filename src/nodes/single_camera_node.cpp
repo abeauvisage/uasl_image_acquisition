@@ -76,24 +76,16 @@ int main(int argc, char * argv[])
     
     std::vector<cv::Mat> img_vec;//Vector to store the images
 	
-	bool looping = true;
-	int signal_received;
-	
 	sensor_msgs::ImagePtr msg;
 	
 	std::string img_encoding = get_encoding(dynamic_cast<cam::BlueFoxParameters&>(acq.get_cam_params(0)).get_pixel_format());
 	
 	acq.start_acq();
 	
-	for(int ret_sig = -1;looping && ret_sig != 2 && nh.ok();ret_sig = sig_handle.get_signal(signal_received))
-	{
-		if(ret_sig == 0 && signal_received == SIGINT) 
-		{
-			looping = false;//A signal is catched, and it is SIGINT
-		}
-			
+	for(;sig_handle.check_term_sig();)
+	{			
 		int ret_acq = acq.get_images(img_vec);
-		if(ret_acq == 0)
+		if(ret_acq > 0)
 		{
 			msg = cv_bridge::CvImage(std_msgs::Header(), img_encoding, img_vec[0]).toImageMsg();
 			pub.publish(msg);
