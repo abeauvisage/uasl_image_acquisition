@@ -326,7 +326,6 @@ int CamBlueFox::retrieve_image(cv::Mat& image)
 		{
 			if(pRequest->isOK())
 			{
-			    std::cout << " [Bluefox] ret img: " << std::chrono::duration_cast<std::chrono::duration<int64_t,std::micro>>(clock_type::now().time_since_epoch()).count() << std::endl;
 				//Export the image into the buffer
 				mvIMPACT::acquire::ImageBuffer * p_ib = pRequest->getImageBufferDesc().getBuffer();
 				export_image(p_ib->iWidth, p_ib->iHeight, p_ib->vpData, params.get_pixel_format(), image);
