@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
 	image_transport::Publisher pub = it.advertise(cam_topic, 3);
 	
 	cam::Acquisition acq;
-    acq.add_camera(cam::bluefox, cam_serial);
+    acq.add_camera<cam::bluefox>(cam_serial);
     
     std::vector<cv::Mat> img_vec;//Vector to store the images
 	
