@@ -4,13 +4,15 @@ Program for acquiring images from one or several bluefox/flir cameras.
 ## Installation
 
 ### Dependencies :
-- [OpenCV] (http://opencv.org/downloads.html) >= 12.4.8  (Image processing library)
+- [OpenCV](http://opencv.org/downloads.html) >= 12.4.8  (Image processing library)
 
 ### Optional dependencies :
 - [Sensoray 2253 driver](http://www.sensoray.com/products/2253.htm) >= 1.2.14 (for tau2 legacy code) 
 - [mvBlueFOX SDK](https://www.matrix-vision.com/USB2.0-industrial-camera-mvbluefox.html) >= 2.17.2 (for MV cameras)
-- [ROS] (tested with indigo and above). The program can be placed directly into your catkin workspace, it will by default compile with ROS compatibility, so you do not need to add the BUILD_ROS_NODE (see below) flag to work with catkin.
-- [GTK+ 3] for configuring tau2 cameras with sensoray frame grabbers.
+- [GTK+ 3](https://www.gtk.org/download/index.php) for configuring tau2 cameras with sensoray frame grabbers.
+- [ROS](http://www.ros.org) (tested with indigo and above).
+
+> The program can be placed directly into your catkin workspace, it will by default compile with ROS compatibility, so you do not need to add the BUILD_ROS_NODE (see below) flag to work with catkin.
 
 ### CMake flags :
 Mandatory argument: 
@@ -32,6 +34,7 @@ Optional argument :
 
 
 ### Trigger:
+> acquisition is triggered using serial communication. Port and baudrate can be specified at the start of the acquisition. If using ftdi usb converters, please follow the instructions below:
 
 1. Copy trigger/95-ftdi-trigger.rules to udev rules directory if using ftdi usb converter for trigger (or trinket pro):
 	cp trigger/95-ftdi-trigger.rules /etc/udev/rules.d/
@@ -45,4 +48,4 @@ Optional argument :
 
 4. Run stereo_example (Don't forget to replace the camera serials/types with your cameras)
 
-/!\ if using Tau2 making sure the camera is configured in Continious mode, trigger won't work in slave mode. (normally it is already configured in the class so it shouldn't be a problem).
+** /!\ if using Tau2 making sure the camera is configured in Continuous mode, trigger won't work in slave mode. (normally it is already configured in the class so it shouldn't be a problem). **
