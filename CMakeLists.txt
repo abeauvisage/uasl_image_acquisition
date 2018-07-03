@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8) 
+cmake_minimum_required(VERSION 2.8.11) 
 PROJECT(uasl_image_acquisition)
 
 add_definitions(-std=c++11)
