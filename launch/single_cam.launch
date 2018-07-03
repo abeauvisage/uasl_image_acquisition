@@ -1,12 +1,14 @@
 <launch>
 
-<arg name="topic" default="/camera/image_raw"/>
-<arg name="serial" default="26802713"/>
+<arg name="topic" default="/camTau2/image_raw"/>
+<arg name="serial" default="FT2HKAW5"/>
+<arg name="type" default="tau2"/>
 
 <node pkg="uasl_image_acquisition" type="single_camera_node" name="single_cam_stream" output="screen">
-    <!-- Camera topic to publish to -->
-    <param name="cam_topic" value="$(arg topic)" type="str" />
+	<!-- Camera topic to publish to -->
+	<param name="cam_topic" value="$(arg topic)" type="str" />
 	<param name="cam_serial" value="$(arg serial)" type="str" />
+	<param name="cam_type" value="$(arg type)" type="str" />
 </node>
 
 </launch>

@@ -86,6 +86,10 @@ if(BUILD_ROS_NODE)
 		  LIBRARIES trigger acq_seq ${SPECIFIC_CAM_LIBS}#External libraries created by this package
 	)
 	include_directories(${catkin_INCLUDE_DIRS})
+
+	#ROS node
+	add_executable(single_camera_node src/nodes/single_camera_node.cpp)
+	target_link_libraries(single_camera_node acq_seq ${SPECIFIC_CAM_LIBS} ${catkin_LIBRARIES}) 
 endif(BUILD_ROS_NODE)
 
 #Trigger code
@@ -109,11 +113,12 @@ if(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY)
 	#Example code
 	add_executable(example_bluefox examples/example_bluefox.cpp)
 	target_link_libraries(example_bluefox acq_seq bluefox_acq)
-	
+
+	#adding compile definition to ROS node
 	if(BUILD_ROS_NODE)
-		add_executable(single_camera_node src/nodes/single_camera_node.cpp)
-		target_link_libraries(single_camera_node acq_seq bluefox_acq ${catkin_LIBRARIES}) 
+		target_compile_definitions(single_camera_node PRIVATE BLUEFOX_FOUND)
 	endif(BUILD_ROS_NODE)
+
 else(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY )
 	message(WARNING "MVBlueFox driver not found, libraries related to this module will be ignored.")
 endif(MVDEVICEMANAGER_LIBRARY AND MVPROPHANDLING_LIBRARY )
@@ -135,6 +140,12 @@ if(TAU2_DRIVER)
 	#Example code
 	add_executable(example_tau2 examples/example_tau2.cpp)
 	target_link_libraries(example_tau2 acq_seq tau2_acq)
+
+	#adding compile definition to ROS node
+	if(BUILD_ROS_NODE)
+		target_compile_definitions(single_camera_node PRIVATE TAU2_FOUND)
+	endif(BUILD_ROS_NODE)
+
 endif(TAU2_DRIVER)
 
 if(TAU2_LEGACY_CODE)
@@ -146,8 +157,6 @@ if(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
 	add_executable(stereo_example examples/stereo_example.cpp)
 	target_link_libraries(stereo_example acq_seq tau2_acq bluefox_acq)
 endif(MVDEVICEMANAGER_LIBRARY AND TAU2_DRIVER)
-
-
 
 include_directories(
   include/${PROJECT_NAME}
