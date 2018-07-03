@@ -243,11 +243,11 @@ void FTDI_PrintDeviceList()
 
         if (desc.idVendor == 1027) // ftdi vendor in hex 0x0403 -> 1027
         {
-            std::cout << "FTDI device found:" << std::endl;
+/*            std::cout << "FTDI device found:" << std::endl;
             std::cout << "VendorID: " << std::hex << "0x" << ((desc.idVendor<0x10)?"0":"") << desc.idVendor << std::dec << std::endl;
             std::cout << "ProductID: " << std::hex << "0x" << ((desc.idProduct<0x10)?"0":"") << desc.idProduct << std::dec << std::endl;
             std::cout << "Number of possible configurations: " << (int)desc.bNumConfigurations << std::endl;
-            std::cout << "Device Class: " << (int)desc.bDeviceClass << std::endl;
+            std::cout << "Device Class: " << (int)desc.bDeviceClass << std::endl;*/
 
             if (desc.iSerialNumber)
             {
@@ -262,14 +262,14 @@ void FTDI_PrintDeviceList()
                 {
                     unsigned char data[64];
                     e = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, data, 64);
-                    std::cout << "Serial: " << data << std::endl;
+//                    std::cout << "Serial: " << data << std::endl;
                 }
             }
 
             libusb_config_descriptor *config;
             libusb_get_config_descriptor(devs[i], 0, &config);
 
-            std::cout << "Interfaces: " << (int)config->bNumInterfaces << std::endl;
+//            std::cout << "Interfaces: " << (int)config->bNumInterfaces << std::endl;
             const libusb_interface *inter;
             const libusb_interface_descriptor *interdesc;
             const libusb_endpoint_descriptor *epdesc;
@@ -442,9 +442,9 @@ FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
         {
             unsigned char data[64] = {0};
 
-            std::cout << "FTDI device found:" << std::endl;
+/*            std::cout << "FTDI device found:" << std::endl;
             std::cout << "VendorID: " << std::hex << "0x" << ((desc.idVendor<0x10)?"0":"") << desc.idVendor << std::dec << std::endl;
-            std::cout << "ProductID: " << std::hex << "0x" << ((desc.idProduct<0x10)?"0":"") << desc.idProduct << std::dec << std::endl;
+            std::cout << "ProductID: " << std::hex << "0x" << ((desc.idProduct<0x10)?"0":"") << desc.idProduct << std::dec << std::endl;*/
 
             if (desc.iSerialNumber)
             {
@@ -458,7 +458,7 @@ FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
                 else
                 {
                     e = libusb_get_string_descriptor_ascii(handle, desc.iSerialNumber, data, 64);
-                    std::cout << "iSerial: " << data << std::endl;
+//                    std::cout << "iSerial: " << data << std::endl;
                 }
                 libusb_close(handle);
             }
@@ -522,7 +522,6 @@ FTDIDevice_Open(FTDIDevice *dev, const char* iSerialUSB)
 void
 FTDIDevice_Close(FTDIDevice *dev)
 {
-std::cout << "FTDIDevice_Close..." << std::endl;
 #ifdef USE_FTDI
 
     FT_Close(dev->handle);

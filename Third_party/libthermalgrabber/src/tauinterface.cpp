@@ -790,8 +790,8 @@ void TauInterface::processSerialPacket(uint8_t* buffer, uint32_t size)
 
         break;
 
-    default:
-        std::cout << "unknown/not implemeted yet: " << (int)(char)buffer[3] << std::endl;
+//    default:
+//        std::cout << "unknown/not implemeted yet: " << (int)(char)buffer[3] << std::endl;
 
     }
     //std::cout << std::endl;
